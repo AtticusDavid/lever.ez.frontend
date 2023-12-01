@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import assets from "./defi-assets/assets";
-import { css } from "../../../styled-system/css";
+import { css } from "../../../../styled-system/css";
 import { usePathname } from "next/navigation";
+import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { useState } from "react";
+import { useAccount } from "wagmi";
 
 const activeStyle = {
   fontSize: "20px",
@@ -15,7 +17,9 @@ export default function RootLayout(props: any) {
   const pathname = usePathname();
 
   const isDefiAssetPages = pathname.startsWith("/app/defi-assets");
-  const [isFolded, setFold] = useState(!isDefiAssetPages);
+  const [isFolded, setFold] = useState(true);
+  const account = useAccount();
+  const { openConnectModal } = useConnectModal();
   return (
     <main
       className={css({
@@ -74,9 +78,7 @@ export default function RootLayout(props: any) {
               className={css({
                 display: "flex",
                 gap: "10px",
-                ...(pathname.startsWith("/app/defi-assets")
-                  ? activeStyle
-                  : undefined),
+                ...(isDefiAssetPages ? activeStyle : undefined),
               })}
             >
               <Image
@@ -122,7 +124,41 @@ export default function RootLayout(props: any) {
           </div>
         </div>
       </nav>
-      <section>{props.children}</section>
+      <section
+        className={css({
+          flexGrow: 1,
+        })}
+      >
+        <header>
+          <div>
+            {account.isConnected ? (
+              <ConnectButton></ConnectButton>
+            ) : (
+              <button
+                className={css({
+                  display: "inline-flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: "10px 28px",
+                  marginBottom: "60px",
+                  height: "45px",
+                  borderRadius: "200px",
+                  color: "black",
+                  backgroundColor: "#B8FF04",
+                  fontSize: 18,
+                  fontWeight: "semibold",
+                })}
+                onClick={() => {
+                  if (openConnectModal) openConnectModal();
+                }}
+              >
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </header>
+        {props.children}
+      </section>
     </main>
   );
 }

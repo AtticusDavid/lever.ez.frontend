@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { css } from "../../styled-system/css";
-import { Button } from "@radix-ui/themes";
+import { css } from "../../../styled-system/css";
 import Link from "next/link";
 
 export default function Home() {
