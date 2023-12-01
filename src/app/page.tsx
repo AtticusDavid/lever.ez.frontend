@@ -1,9 +1,15 @@
-import styles from "./page.module.css";
+import { css } from "../../styled-system/css";
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <div className=" bg-red-400">hihi</div>
+    <main>
+      <div
+        className={css({
+          fontWeight: "bold",
+        })}
+      >
+        hihi
+      </div>
     </main>
   );
 }
