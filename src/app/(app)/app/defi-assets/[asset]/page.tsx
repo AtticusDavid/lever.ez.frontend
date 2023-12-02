@@ -8,6 +8,7 @@ import DashBoardOverviewStatus from "../../DashBoardOverviewStatus";
 import PositionCard from "./PositionCard";
 import { vstack } from "../../../../../../styled-system/patterns";
 import UserIndicator from "./UserIndicator";
+import TXDialog from "./TXDialog";
 
 const paramsSchema = object({
   asset: string()
@@ -74,6 +75,7 @@ export default function DefiAssets() {
           badgeText="Dangerous"
         ></PositionCard>
       </DashBoardSection>
+      <TXDialog></TXDialog>
     </div>
   );
 }
