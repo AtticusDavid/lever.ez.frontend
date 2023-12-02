@@ -407,7 +407,7 @@
   --sizes-breakpoint-sm: 640px;
   --sizes-breakpoint-md: 768px;
   --sizes-breakpoint-lg: 1024px;
-  --sizes-breakpoint-xl: 1280px;
+  --sizes-breakpoint-xl: 1130px;
   --sizes-breakpoint-2xl: 1536px;
   --animations-spin: spin 1s linear infinite;
   --animations-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -416,7 +416,7 @@
   --breakpoints-sm: 640px;
   --breakpoints-md: 768px;
   --breakpoints-lg: 1024px;
-  --breakpoints-xl: 1280px;
+  --breakpoints-xl: 1130px;
   --breakpoints-2xl: 1536px
 }
   }

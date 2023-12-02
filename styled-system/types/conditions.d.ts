@@ -192,15 +192,15 @@ export interface Conditions {
 	"mdDown": string
 	/** `@media screen and (min-width: 64em)` */
 	"lg": string
-	/** `@media screen and (min-width: 64em) and (max-width: 79.9975em)` */
+	/** `@media screen and (min-width: 64em) and (max-width: 70.6225em)` */
 	"lgOnly": string
 	/** `@media screen and (max-width: 63.9975em)` */
 	"lgDown": string
-	/** `@media screen and (min-width: 80em)` */
+	/** `@media screen and (min-width: 70.625em)` */
 	"xl": string
-	/** `@media screen and (min-width: 80em) and (max-width: 95.9975em)` */
+	/** `@media screen and (min-width: 70.625em) and (max-width: 95.9975em)` */
 	"xlOnly": string
-	/** `@media screen and (max-width: 79.9975em)` */
+	/** `@media screen and (max-width: 70.6225em)` */
 	"xlDown": string
 	/** `@media screen and (min-width: 96em)` */
 	"2xl": string
@@ -212,21 +212,21 @@ export interface Conditions {
 	"smToMd": string
 	/** `@media screen and (min-width: 40em) and (max-width: 63.9975em)` */
 	"smToLg": string
-	/** `@media screen and (min-width: 40em) and (max-width: 79.9975em)` */
+	/** `@media screen and (min-width: 40em) and (max-width: 70.6225em)` */
 	"smToXl": string
 	/** `@media screen and (min-width: 40em) and (max-width: 95.9975em)` */
 	"smTo2xl": string
 	/** `@media screen and (min-width: 48em) and (max-width: 63.9975em)` */
 	"mdToLg": string
-	/** `@media screen and (min-width: 48em) and (max-width: 79.9975em)` */
+	/** `@media screen and (min-width: 48em) and (max-width: 70.6225em)` */
 	"mdToXl": string
 	/** `@media screen and (min-width: 48em) and (max-width: 95.9975em)` */
 	"mdTo2xl": string
-	/** `@media screen and (min-width: 64em) and (max-width: 79.9975em)` */
+	/** `@media screen and (min-width: 64em) and (max-width: 70.6225em)` */
 	"lgToXl": string
 	/** `@media screen and (min-width: 64em) and (max-width: 95.9975em)` */
 	"lgTo2xl": string
-	/** `@media screen and (min-width: 80em) and (max-width: 95.9975em)` */
+	/** `@media screen and (min-width: 70.625em) and (max-width: 95.9975em)` */
 	"xlTo2xl": string
 	/** The base (=no conditions) styles to apply  */
 	"base": string

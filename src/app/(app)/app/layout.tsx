@@ -6,7 +6,7 @@ import { css } from "../../../../styled-system/css";
 import { usePathname } from "next/navigation";
 import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 const activeStyle = {
@@ -15,15 +15,22 @@ const activeStyle = {
 } as const;
 export default function RootLayout(props: any) {
   const pathname = usePathname();
-
   const isDefiAssetPages = pathname.startsWith("/app/defi-assets");
-  const [isFolded, setFold] = useState(true);
+  const [isClientRendered, setClientRendered] = useState(false);
+
+  useEffect(() => {
+    setClientRendered(true);
+  }, []);
+
+  const [isFolded, setFold] = useState(false);
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
   return (
     <main
       className={css({
         display: "flex",
+        backgroundColor: "black",
+        minHeight: "100vh",
       })}
     >
       <nav
@@ -34,7 +41,7 @@ export default function RootLayout(props: any) {
           backgroundColor: "#202020",
           color: "white",
           width: "256px",
-          height: "100vh",
+          minWidth: "256px",
         })}
       >
         <div
@@ -96,9 +103,13 @@ export default function RootLayout(props: any) {
                 height={20}
                 onClick={() => setFold((v) => !v)}
                 className={css({
-                  transform: `rotate(${isFolded ? "180deg" : "0deg"})`,
-                  // transform: `rotate(180deg)`,
+                  transform: `rotate(var(--deg))`,
                 })}
+                style={
+                  {
+                    ["--deg"]: isFolded ? "180deg" : "0deg",
+                  } as React.CSSProperties
+                }
               ></Image>
               {isFolded}
             </span>
@@ -108,18 +119,22 @@ export default function RootLayout(props: any) {
                 flexDirection: "column",
               })}
             >
-              {assets.map((x) => {
-                const href = `/app/defi-assets/${x.name.toLowerCase()}`;
-                return (
-                  <Link
-                    key={x.name}
-                    href={href}
-                    className={css(pathname === href ? activeStyle : undefined)}
-                  >
-                    {x.name}
-                  </Link>
-                );
-              })}
+              {assets
+                .filter((x) => x.isActive)
+                .map((x) => {
+                  const href = `/app/defi-assets/${x.name.toLowerCase()}`;
+                  return (
+                    <Link
+                      key={x.name}
+                      href={href}
+                      className={css(
+                        pathname === href ? activeStyle : undefined
+                      )}
+                    >
+                      {x.name}
+                    </Link>
+                  );
+                })}
             </div>
           </div>
         </div>
@@ -129,9 +144,23 @@ export default function RootLayout(props: any) {
           flexGrow: 1,
         })}
       >
-        <header>
-          <div>
-            {account.isConnected ? (
+        <header
+          className={css({
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            boxSizing: "border-box",
+            padding: "60px 50px 50px 60px",
+          })}
+        >
+          <Image
+            src="/dashboard-title.svg"
+            alt="dashboard"
+            width={252}
+            height={50}
+          ></Image>
+          <>
+            {isClientRendered && account.isConnected ? (
               <ConnectButton></ConnectButton>
             ) : (
               <button
@@ -140,7 +169,6 @@ export default function RootLayout(props: any) {
                   justifyContent: "center",
                   alignItems: "center",
                   padding: "10px 28px",
-                  marginBottom: "60px",
                   height: "45px",
                   borderRadius: "200px",
                   color: "black",
@@ -155,7 +183,7 @@ export default function RootLayout(props: any) {
                 Connect Wallet
               </button>
             )}
-          </div>
+          </>
         </header>
         {props.children}
       </section>

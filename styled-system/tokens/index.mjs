@@ -1628,7 +1628,7 @@ const tokens = {
     "variable": "var(--sizes-breakpoint-lg)"
   },
   "sizes.breakpoint-xl": {
-    "value": "1280px",
+    "value": "1130px",
     "variable": "var(--sizes-breakpoint-xl)"
   },
   "sizes.breakpoint-2xl": {
@@ -1664,7 +1664,7 @@ const tokens = {
     "variable": "var(--breakpoints-lg)"
   },
   "breakpoints.xl": {
-    "value": "1280px",
+    "value": "1130px",
     "variable": "var(--breakpoints-xl)"
   },
   "breakpoints.2xl": {
