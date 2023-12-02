@@ -96,6 +96,7 @@ function TXDialog() {
               ></Image>
               <span
                 className={css({
+                  fontFamily: "var(--font-dogica)",
                   fontWeight: "bold",
                   fontSize: "26px",
                   color: "white",

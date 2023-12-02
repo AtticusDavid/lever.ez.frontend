@@ -20,6 +20,11 @@ const wantedSans = localFont({
   ],
 });
 
+const dogica = localFont({
+  src: "../fonts/dogica-pixel-bold.otf",
+  variable: "--font-dogica",
+});
+
 export const metadata: Metadata = {
   title: "LEVEL.EZ",
   description: "",
@@ -32,7 +37,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={wantedSans.className}>
+      <body className={`${wantedSans.className} ${dogica.variable}`}>
         <Theme>{children}</Theme>
       </body>
     </html>
