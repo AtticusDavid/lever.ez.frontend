@@ -19,7 +19,7 @@ function DashBoardAssetStatus({
   return (
     <div
       onClick={() => onClick && onClick()}
-      className={css({
+      className={`${css({
         minWidth: "410px",
         flexGrow: "1",
         boxSizing: "border-box",
@@ -30,7 +30,13 @@ function DashBoardAssetStatus({
         backgroundColor: "#2C2C2B",
         opacity: isActive ? 1 : 0.5,
         padding: "23px",
-      })}
+        _hover: {
+          backgroundColor: "#4C4C4B",
+        },
+        _active: {
+          backgroundColor: "#B8FF04",
+        },
+      })} group`}
     >
       <div
         className={css({
@@ -52,6 +58,9 @@ function DashBoardAssetStatus({
               fontSize: "26px",
               fontWeight: "semibold",
               color: "white",
+              _groupActive: {
+                color: "black",
+              },
             })}
           >
             {assetName}
@@ -63,6 +72,9 @@ function DashBoardAssetStatus({
           fontSize: "20px",
           fontWeight: "semibold",
           color: isActive ? "#B8FF04" : "#BEC3AF",
+          _groupActive: {
+            color: "black",
+          },
         })}
       >
         {isActive ? "Manage" : "Preparing..."}
