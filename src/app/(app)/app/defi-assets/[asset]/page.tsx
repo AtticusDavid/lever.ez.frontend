@@ -9,6 +9,7 @@ import PositionCard from "./PositionCard";
 import { vstack } from "../../../../../../styled-system/patterns";
 import UserIndicator from "./UserIndicator";
 import TXDialog from "./TXDialog";
+import CloseModal from "./CloseModal";
 
 const paramsSchema = object({
   asset: string()
@@ -76,6 +77,7 @@ export default function DefiAssets() {
         ></PositionCard>
       </DashBoardSection>
       <TXDialog></TXDialog>
+      <CloseModal></CloseModal>
     </div>
   );
 }
