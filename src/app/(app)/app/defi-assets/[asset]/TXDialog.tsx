@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { css } from "../../../../../../styled-system/css";
 import {
@@ -80,7 +81,37 @@ function TXDialog() {
             animation: "contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
           })}
         >
-          <Dialog.Title className="DialogTitle">ETH</Dialog.Title>
+          <Dialog.Title
+            className={hstack({
+              justifyContent: "space-between",
+            })}
+          >
+            <div className={hstack({})}>
+              <Image
+                src="/assets/compound.png"
+                height={35}
+                width={35}
+                alt=""
+              ></Image>
+              <span
+                className={css({
+                  fontWeight: "bold",
+                  fontSize: "26px",
+                  color: "white",
+                })}
+              >
+                ETH
+              </span>
+            </div>
+            <Dialog.Close asChild>
+              <Image
+                src="/icon/arrow-left.svg"
+                height={35}
+                width={35}
+                alt="Close "
+              ></Image>
+            </Dialog.Close>
+          </Dialog.Title>
           <div
             ref={(element: HTMLDivElement | null) => {
               if (element) {
