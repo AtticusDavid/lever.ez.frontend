@@ -1,5 +1,7 @@
 "use client";
+
 import Image from "next/image";
+import { produce } from "immer";
 import * as Dialog from "@radix-ui/react-dialog";
 import { css } from "../../../../../../styled-system/css";
 import {
@@ -8,43 +10,10 @@ import {
   vstack,
 } from "../../../../../../styled-system/patterns";
 import React, { useState } from "react";
-import Spinner from "./Spinner";
-
-const options = ["Supply", "Withdraw", "Borrow", "Close"];
-const interestDebtData = {
-  big: [
-    {
-      label: "AVR",
-      value: "-20%",
-    },
-    {
-      label: "Governance APR",
-      value: "120%",
-    },
-  ],
-  small: [
-    {
-      label: "Supply Amount",
-      value: "2k DAI + 0.28 ETH",
-    },
-    {
-      label: "Borrow APR",
-      value: "-8.3",
-    },
-    {
-      label: "Borrow Amount",
-      value: "5k DAI",
-    },
-    {
-      label: "Reward APR",
-      value: "-123%",
-    },
-  ],
-};
 
 const chainList = ["Mumbai", "Sepolia", "Fuji"];
 function CloseModal() {
-  const [index, setIndex] = useState(0);
+  const [indiceSet, updateIndiceSet] = useState(new Set<number>());
 
   return (
     <Dialog.Root>
@@ -109,11 +78,21 @@ function CloseModal() {
             })}
           >
             {chainList.map((chainName, chainIndex) => {
-              const isActive = chainIndex === index;
+              const isActive = indiceSet.has(chainIndex);
               return (
                 <div
                   key={chainName}
-                  onClick={() => setIndex(chainIndex)}
+                  onClick={() => {
+                    updateIndiceSet(
+                      produce((draft) => {
+                        if (isActive) {
+                          draft.delete(chainIndex);
+                          return;
+                        }
+                        draft.add(chainIndex);
+                      })
+                    );
+                  }}
                   style={
                     {
                       "--bg": isActive ? "#B8FF04" : "#53544E",
