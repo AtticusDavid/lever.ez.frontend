@@ -6,40 +6,45 @@ import {
   hstack,
   vstack,
 } from "../../../../../../styled-system/patterns";
-import React from "react";
+import React, { useState } from "react";
 import Spinner from "./Spinner";
 
+const options = ["Supply", "Withdraw", "Borrow", "Close"];
+const interestDebtData = {
+  big: [
+    {
+      label: "AVR",
+      value: "-20%",
+    },
+    {
+      label: "Governance APR",
+      value: "120%",
+    },
+  ],
+  small: [
+    {
+      label: "Supply Amount",
+      value: "2k DAI + 0.28 ETH",
+    },
+    {
+      label: "Borrow APR",
+      value: "-8.3",
+    },
+    {
+      label: "Borrow Amount",
+      value: "5k DAI",
+    },
+    {
+      label: "Reward APR",
+      value: "-123%",
+    },
+  ],
+};
+
 function TXDialog() {
-  const interestDebtData = {
-    big: [
-      {
-        label: "AVR",
-        value: "-20%",
-      },
-      {
-        label: "Governance APR",
-        value: "120%",
-      },
-    ],
-    small: [
-      {
-        label: "Supply Amount",
-        value: "2k DAI + 0.28 ETH",
-      },
-      {
-        label: "Borrow APR",
-        value: "-8.3",
-      },
-      {
-        label: "Borrow Amount",
-        value: "5k DAI",
-      },
-      {
-        label: "Reward APR",
-        value: "-123%",
-      },
-    ],
-  };
+  const [optionWidth, setOptionWidth] = useState(0);
+  const [index, setIndex] = useState(0);
+
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -62,6 +67,7 @@ function TXDialog() {
             color: "#BEC3AF",
             backgroundColor: "#171814",
             padding: "50px 60px",
+            gap: "30px",
             borderRadius: "10px",
             boxShadow:
               "hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px",
@@ -76,17 +82,25 @@ function TXDialog() {
         >
           <Dialog.Title className="DialogTitle">ETH</Dialog.Title>
           <div
+            ref={(element: HTMLDivElement | null) => {
+              if (element) {
+                setOptionWidth(element.offsetWidth / 4);
+              }
+            }}
             className={hstack({
               backgroundColor: "#2C2C2B",
               height: "50px",
               borderRadius: "10px",
+              position: "relative",
             })}
           >
-            {["Supply", "Withdraw", "Borrow", "Close"].map((item) => (
+            {options.map((item, index) => (
               <div
                 key={item}
+                onClick={() => setIndex(index)}
                 className={center({
                   flexGrow: "1",
+                  width: "25%",
                   fontSize: "24px",
                   fontWeight: "semibold",
                 })}
@@ -94,6 +108,31 @@ function TXDialog() {
                 {item}
               </div>
             ))}
+            <div
+              style={
+                {
+                  "--x": `${optionWidth * index}px`,
+                } as React.CSSProperties
+              }
+              className={center({
+                boxSizing: "content-box",
+                pointerEvents: "none",
+                backgroundColor: "#565656",
+                position: "absolute",
+                width: "25%",
+                padding: "5px",
+                height: "100%",
+                borderRadius: "25px",
+                border: "1px solid #B8FF04",
+                color: "#B8FF04",
+                fontWeight: "semibold",
+                fontSize: "24px",
+                transform: "translateX(calc(var(--x) - 5px))",
+                transition: "0.1s transform ease-in-out",
+              })}
+            >
+              {options[index]}
+            </div>
           </div>
           <div
             className={vstack({
@@ -234,7 +273,7 @@ function TXDialog() {
               })}
               aria-label="Close"
             >
-              Close
+              {options[index]}
             </button>
           </Dialog.Close>
         </Dialog.Content>
