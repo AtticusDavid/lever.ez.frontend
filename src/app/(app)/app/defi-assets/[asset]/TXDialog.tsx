@@ -89,8 +89,8 @@ function TXDialog() {
             <div className={hstack({})}>
               <Image
                 src="/assets/compound.png"
-                height={35}
-                width={35}
+                height={64}
+                width={64}
                 alt=""
               ></Image>
               <span

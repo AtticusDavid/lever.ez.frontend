@@ -8,6 +8,7 @@ import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import { hstack } from "../../../../styled-system/patterns";
 
 const activeStyle = {
   fontSize: "20px",
@@ -64,10 +65,10 @@ export default function RootLayout(props: any) {
         </div>
         <div className={css({ marginLeft: "35px", position: "relative" })}>
           <Link
-            className={css({
+            className={hstack({
               ...(pathname === "/app" ? activeStyle : undefined),
               display: "flex",
-              gap: "10px",
+              gap: "25px",
             })}
             href="/app"
           >
@@ -82,25 +83,33 @@ export default function RootLayout(props: any) {
           </Link>
           <div>
             <span
-              className={css({
+              className={hstack({
                 display: "flex",
-                gap: "10px",
-                ...(isDefiAssetPages ? activeStyle : undefined),
+                justifyContent: "space-between",
+                gap: "25px",
+                paddingRight: "20px",
+                margin: "25px 0 16px 0",
               })}
             >
-              <Image
-                src="/icon/defi-assets.svg"
-                alt=""
-                width={20}
-                height={20}
-                className={css({})}
-              ></Image>
-              DeFi Assets
+              <div
+                className={hstack({
+                  gap: "25px",
+                })}
+              >
+                <Image
+                  src="/icon/defi-assets.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={css({})}
+                ></Image>
+                DeFi Assets
+              </div>
               <Image
                 src="/icon/nav-arrowdown.svg"
                 alt=""
-                width={20}
-                height={20}
+                width={10}
+                height={10}
                 onClick={() => setFold((v) => !v)}
                 className={css({
                   transform: `rotate(var(--deg))`,
@@ -116,6 +125,7 @@ export default function RootLayout(props: any) {
             <div
               className={css({
                 display: isFolded ? "none" : "flex",
+                gap: "15px",
                 flexDirection: "column",
               })}
             >
@@ -127,10 +137,19 @@ export default function RootLayout(props: any) {
                     <Link
                       key={x.name}
                       href={href}
-                      className={css(
+                      className={hstack(
                         pathname === href ? activeStyle : undefined
                       )}
                     >
+                      <Image
+                        src={x.icon}
+                        width={20}
+                        height={20}
+                        alt=""
+                        className={css({
+                          marginRight: "18px",
+                        })}
+                      ></Image>
                       {x.name}
                     </Link>
                   );
