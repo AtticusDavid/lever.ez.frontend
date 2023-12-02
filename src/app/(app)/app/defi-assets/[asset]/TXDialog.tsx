@@ -7,6 +7,7 @@ import {
   vstack,
 } from "../../../../../../styled-system/patterns";
 import React from "react";
+import Spinner from "./Spinner";
 
 function TXDialog() {
   const interestDebtData = {
@@ -147,6 +148,16 @@ function TXDialog() {
                 Max
               </button>
             </div>
+            <Spinner
+              color="#C08FFF"
+              ratio={0.6}
+              title="LTV"
+              description={{
+                start: <span></span>,
+                middle: <span></span>,
+                end: <span></span>,
+              }}
+            ></Spinner>
           </div>
           <div>
             <span className={css({ fontWeight: "semibold", fontSize: "18px" })}>
