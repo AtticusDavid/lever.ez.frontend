@@ -6,8 +6,11 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { mainnet, polygon, optimism, arbitrum, base, zora } from "wagmi/chains";
 import { enableMapSet } from "immer";
+import localFont from "next/font/local";
 // import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+
+// https://nextjs.org/docs/app/api-reference/components/font
 
 // setup immer
 enableMapSet();

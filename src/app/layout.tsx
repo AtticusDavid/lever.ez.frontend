@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
 import { Theme } from "@radix-ui/themes";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const wantedSans = localFont({
+  src: [
+    {
+      path: "../fonts/WantedSans-Regular.otf",
+      weight: "normal",
+    },
+    {
+      path: "../fonts/WantedSans-SemiBold.otf",
+      weight: "600",
+    },
+    {
+      path: "../fonts/WantedSans-Black.otf",
+      weight: "800",
+    },
+  ],
+});
 
 export const metadata: Metadata = {
   title: "LEVEL.EZ",
@@ -17,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={wantedSans.className}>
         <Theme>{children}</Theme>
       </body>
     </html>
