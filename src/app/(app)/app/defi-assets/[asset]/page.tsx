@@ -6,6 +6,8 @@ import DashBoardSection from "../../DashBoardSection";
 import { css } from "../../../../../../styled-system/css";
 import DashBoardOverviewStatus from "../../DashBoardOverviewStatus";
 import PositionCard from "./PositionCard";
+import { vstack } from "../../../../../../styled-system/patterns";
+import UserIndicator from "./UserIndicator";
 
 const paramsSchema = object({
   asset: string()
@@ -14,12 +16,9 @@ const paramsSchema = object({
 }).required();
 
 export default function DefiAssets() {
-  const router = useRouter();
   const params = useParams();
 
-  console.log({ router, params });
-
-  const result = paramsSchema.validateSync(params);
+  paramsSchema.validateSync(params);
 
   return (
     <div
@@ -32,30 +31,37 @@ export default function DefiAssets() {
       })}
     >
       <DashBoardSection title="Overview">
-        <div
-          className={css({
-            display: "flex",
-            gap: "18px",
-          })}
-        >
-          <DashBoardOverviewStatus
-            description="Net Worth"
-            color="#ffffff"
-            balance={0}
-            iconSrc="/icon/net-worth.png"
-          ></DashBoardOverviewStatus>
-          <DashBoardOverviewStatus
-            description="Supplied"
-            color="#B8FF04"
-            balance={0}
-            iconSrc="/icon/supplied.png"
-          ></DashBoardOverviewStatus>
-          <DashBoardOverviewStatus
-            description="Borrowed"
-            color="#C08FFF"
-            balance={0}
-            iconSrc="/icon/borrowed.png"
-          ></DashBoardOverviewStatus>
+        <div className={vstack({})}>
+          <div
+            className={css({
+              display: "flex",
+              gap: "18px",
+            })}
+          >
+            <DashBoardOverviewStatus
+              description="Net Worth"
+              color="#ffffff"
+              balance={0}
+              iconSrc="/icon/net-worth.png"
+            ></DashBoardOverviewStatus>
+            <DashBoardOverviewStatus
+              description="Supplied"
+              color="#B8FF04"
+              balance={0}
+              iconSrc="/icon/supplied.png"
+            ></DashBoardOverviewStatus>
+            <DashBoardOverviewStatus
+              description="Borrowed"
+              color="#C08FFF"
+              balance={0}
+              iconSrc="/icon/borrowed.png"
+            ></DashBoardOverviewStatus>
+          </div>
+          <UserIndicator
+            ratio={0.7}
+            description="Are you Degen Apes?"
+            color="red"
+          ></UserIndicator>
         </div>
       </DashBoardSection>
       <DashBoardSection title="Your Positions">
