@@ -2,6 +2,10 @@
 import { useParams, useRouter } from "next/navigation";
 import { object, string } from "yup";
 import assets from "../assets";
+import DashBoardSection from "../../DashBoardSection";
+import { css } from "../../../../../../styled-system/css";
+import DashBoardOverviewStatus from "../../DashBoardOverviewStatus";
+import PositionCard from "./PositionCard";
 
 const paramsSchema = object({
   asset: string()
@@ -18,8 +22,52 @@ export default function DefiAssets() {
   const result = paramsSchema.validateSync(params);
 
   return (
-    <main>
-      <div className=" bg-red-400">this is defiassets for {result.asset}</div>
-    </main>
+    <div
+      className={css({
+        display: "flex",
+        color: "white",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "60px",
+      })}
+    >
+      <DashBoardSection title="Overview">
+        <div
+          className={css({
+            display: "flex",
+            gap: "18px",
+          })}
+        >
+          <DashBoardOverviewStatus
+            description="Net Worth"
+            color="#ffffff"
+            balance={0}
+            iconSrc="/icon/net-worth.png"
+          ></DashBoardOverviewStatus>
+          <DashBoardOverviewStatus
+            description="Supplied"
+            color="#B8FF04"
+            balance={0}
+            iconSrc="/icon/supplied.png"
+          ></DashBoardOverviewStatus>
+          <DashBoardOverviewStatus
+            description="Borrowed"
+            color="#C08FFF"
+            balance={0}
+            iconSrc="/icon/borrowed.png"
+          ></DashBoardOverviewStatus>
+        </div>
+      </DashBoardSection>
+      <DashBoardSection title="Your Positions">
+        <PositionCard
+          iconSrc="/assets/uniswap-v3.png"
+          netWorth={0}
+          supply={0}
+          borrow={0}
+          badgeColor="#D70027"
+          badgeText="Dangerous"
+        ></PositionCard>
+      </DashBoardSection>
+    </div>
   );
 }

@@ -1,26 +1,27 @@
+"use client";
+
 import { css } from "../../../../styled-system/css";
 import Image from "next/image";
 
 type DashBoardAssetStatusProps = {
   iconSrc: string;
   assetName: string;
+  onClick?: () => void;
   isActive: boolean;
 };
 
 function DashBoardAssetStatus({
   assetName,
   iconSrc,
+  onClick,
   isActive,
 }: DashBoardAssetStatusProps) {
   return (
     <div
+      onClick={() => onClick && onClick()}
       className={css({
         minWidth: "410px",
-        // flexGrow: 1,
-        width: {
-          base: "",
-          xl: "calc(50%-1px)",
-        },
+        flexGrow: "1",
         boxSizing: "border-box",
         display: "flex",
         justifyContent: "space-between",
