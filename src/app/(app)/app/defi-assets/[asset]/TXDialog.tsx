@@ -56,6 +56,7 @@ function TXDialog() {
           className={css({
             backgroundColor: "rgba(0,0,0,0.1)",
             position: "fixed",
+            backdropFilter: "blur(1.5px)",
             inset: "0",
             animation: "overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
             filter: "blur(10px)",
