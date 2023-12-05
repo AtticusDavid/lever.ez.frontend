@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PointerEventHandler, useRef, useState } from "react";
 import { css } from "../../../../../../styled-system/css";
 import {
   center,
@@ -6,6 +6,10 @@ import {
   hstack,
   vstack,
 } from "../../../../../../styled-system/patterns";
+
+function getXFromEvent<T extends HTMLDivElement>(event: React.PointerEvent<T>) {
+  return event.nativeEvent.offsetX;
+}
 
 function Spinner({
   color,
@@ -22,6 +26,29 @@ function Spinner({
   };
   ratio: number;
 }) {
+  const [value, setValue] = useState(ratio);
+
+  const isDragging = useRef(false);
+
+  const onDrag: PointerEventHandler<HTMLDivElement> = (event) => {
+    if (!isDragging.current) return;
+    const target = event.target;
+    const parent = event.currentTarget;
+
+    if (!(parent instanceof HTMLDivElement)) return;
+    if (!(target instanceof HTMLDivElement)) return;
+
+    const x =
+      target.getBoundingClientRect().x -
+      parent.getBoundingClientRect().x +
+      getXFromEvent(event);
+
+    const body = document.querySelector("#spinner-body");
+    if (!(body instanceof HTMLDivElement)) return;
+    const length = body.offsetWidth;
+    setValue(x / length);
+  };
+
   return (
     <div
       style={
@@ -52,6 +79,18 @@ function Spinner({
 
       <div>
         <div
+          onPointerMove={onDrag}
+          onPointerDown={(event) => {
+            isDragging.current = true;
+            onDrag(event);
+          }}
+          onPointerUp={() => {
+            isDragging.current = false;
+          }}
+          onPointerLeave={() => {
+            isDragging.current = false;
+          }}
+          id="spinner-body"
           className={css({
             backgroundColor: "#BEC3AF",
             borderRadius: "20px",
@@ -63,7 +102,7 @@ function Spinner({
           <div
             style={
               {
-                "--ratio": `${Math.floor(ratio * 100)}%`,
+                "--ratio": `${Math.floor(value * 100)}%`,
               } as React.CSSProperties
             }
             className={circle({
@@ -90,6 +129,7 @@ function Spinner({
               >
                 <div
                   className={circle({
+                    pointerEvents: "none",
                     position: "absolute",
                     backgroundColor: "var(--color)",
                     opacity: "0.7",
