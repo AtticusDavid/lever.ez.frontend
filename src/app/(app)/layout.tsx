@@ -3,8 +3,14 @@
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { mainnet, polygon, optimism, arbitrum, base, zora } from "wagmi/chains";
+import { configureChains, createConfig, sepolia, WagmiConfig } from "wagmi";
+import {
+  mainnet,
+  polygonMumbai,
+  avalancheFuji,
+  base,
+  scroll,
+} from "wagmi/chains";
 import { enableMapSet } from "immer";
 import localFont from "next/font/local";
 // import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -16,7 +22,7 @@ import { publicProvider } from "wagmi/providers/public";
 enableMapSet();
 
 const { chains, publicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, base, zora],
+  [mainnet, base, scroll, sepolia, polygonMumbai, avalancheFuji],
   [publicProvider()]
 );
 
