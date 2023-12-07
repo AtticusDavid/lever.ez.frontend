@@ -6,9 +6,22 @@ import DashBoardOverviewStatus from "@/app/(app)/app/DashBoardOverviewStatus";
 import assets from "./defi-assets/assets";
 import DashBoardAssetStatus from "./DashBoardAssetStatus";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { readContract } from "@wagmi/core";
+import { leverageABI } from "@/generated";
 
 export default function DashBoard() {
   const router = useRouter();
+
+  useEffect(() => {
+    readContract({
+      address: "0x32D5cA45846275A5c0b237bB3Ba0C14556EBF6d1",
+      abi: leverageABI,
+      functionName: "vault",
+    }).then((result) => {
+      console.log({ result });
+    });
+  }, []);
 
   const dashboardAssetRenderer = (asset: (typeof assets)[number]) => {
     return (
