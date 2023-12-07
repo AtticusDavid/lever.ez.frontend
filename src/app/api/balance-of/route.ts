@@ -4,13 +4,13 @@ import {
   leveragerAddress,
   AAVE_V3_A_TOKENS,
   AAVE_V3_DEBT_TOKENS,
-} from "@/app/api/constants";
+} from "@/hardhat/constants";
 import {
   Multicall3,
   Multicall3__factory,
   MockERC20__factory,
-} from "@/app/api/typechain-types";
-import { getProviderRpcUrl, getPrivateKey } from "@/app/api/utils";
+} from "@/hardhat/typechain-types";
+import { getProviderRpcUrl, getPrivateKey } from "@/hardhat/utils";
 import { ethers, Wallet } from "ethers";
 
 export const dynamic = "force-dynamic"; // defaults to force-static
