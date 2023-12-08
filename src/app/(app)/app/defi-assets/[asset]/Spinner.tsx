@@ -30,8 +30,6 @@ function Spinner({
   minimumRatio?: number;
   onChange?: (value: number) => void;
 }) {
-  const [value] = useState(ratio);
-
   const isReadOnly = !onChange;
   const isDragging = useRef(false);
 
@@ -53,7 +51,7 @@ function Spinner({
     if (!(body instanceof HTMLDivElement)) return;
     const length = body.offsetWidth;
     if (minimumRatio) {
-      onChange(Math.min(minimumRatio, x / length));
+      onChange(Math.max(minimumRatio, x / length));
       return;
     }
     onChange(x / length);
@@ -114,13 +112,13 @@ function Spinner({
           <div
             style={
               {
-                "--ratio": `${Math.floor(value * 100)}%`,
+                "--ratio": `${Math.floor(ratio * 100)}%`,
               } as React.CSSProperties
             }
             className={circle({
               position: "relative",
               height: "10px",
-              width: "calc(var(--ratio) - 10px)",
+              width: "calc(var(--ratio) - 7.5px)",
               backgroundColor: "var(--color)",
               justifyContent: "flex-end",
             })}
@@ -153,7 +151,7 @@ function Spinner({
               </div>
             </div>
           </div>
-          {minimumRatio !== null ? (
+          {minimumRatio !== undefined ? (
             <div
               style={
                 {
@@ -163,6 +161,7 @@ function Spinner({
                 } as React.CSSProperties
               }
               className={css({
+                pointerEvents: "none",
                 position: "absolute",
                 left: "0px",
                 top: "0px",

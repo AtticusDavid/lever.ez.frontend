@@ -43,7 +43,7 @@ function Supply(props: SupplyProps) {
       >
         {[
           {
-            label: "ETh",
+            label: "ETH",
             value: props.revnueEstimation,
           },
           {
@@ -55,10 +55,18 @@ function Supply(props: SupplyProps) {
             <div
               key={item.label}
               className={hstack({
+                width: "45%",
                 justifyContent: "space-between",
               })}
             >
-              <span>{item.label}</span>
+              <span
+                className={css({
+                  fontSize: "14px",
+                  maxWidth: "150px",
+                })}
+              >
+                {item.label}
+              </span>
               <span
                 className={css({
                   fontSize: "26px",

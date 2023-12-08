@@ -2,6 +2,7 @@ import { css } from "../../../../../../styled-system/css";
 import Image from "next/image";
 import { center } from "../../../../../../styled-system/patterns";
 import React from "react";
+import TXDialog from "./TXDialog";
 
 function PositionCard({
   iconSrc,
@@ -136,21 +137,7 @@ function PositionCard({
         ))}
       </div>
 
-      <div
-        className={css({
-          backgroundColor: "#565656",
-          height: "48px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          borderRadius: "10px",
-          color: "white",
-          fontWeight: "semibold",
-          fontSize: "18px",
-        })}
-      >
-        Manage
-      </div>
+      <TXDialog></TXDialog>
     </div>
   );
 }

@@ -76,7 +76,6 @@ export default function DefiAssets() {
           badgeText="Dangerous"
         ></PositionCard>
       </DashBoardSection>
-      <TXDialog></TXDialog>
       <CloseModal></CloseModal>
     </div>
   );

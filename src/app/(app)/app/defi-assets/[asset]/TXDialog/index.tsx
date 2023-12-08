@@ -18,9 +18,21 @@ import Close from "./Close";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
+const spinnerWhiteSemiBold = css({
+  fontSize: "14px",
+  color: "white",
+  fontWeight: "semibold",
+});
+
+const spinnerSmallText = css({
+  fontSize: "12px",
+  color: "#BEC3AF",
+});
+
 function TXDialog() {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, setIndex] = useState(0);
+  const [ratio, setRatio] = useState(0.73);
 
   function renderBody() {
     return match(options[index])
@@ -30,13 +42,14 @@ function TXDialog() {
             <BalanceInput>
               <Spinner
                 color="#D70027"
-                ratio={0.6}
+                ratio={ratio}
+                onChange={setRatio}
                 minimumRatio={0.4}
                 title="Flashlone Leverage"
                 description={{
-                  start: <span>1X</span>,
-                  middle: <span>2X</span>,
-                  end: <span>4X</span>,
+                  start: <span className={spinnerWhiteSemiBold}>1X</span>,
+                  middle: <span className={spinnerWhiteSemiBold}>2X</span>,
+                  end: <span className={spinnerWhiteSemiBold}>4X</span>,
                 }}
               ></Spinner>
             </BalanceInput>
@@ -57,12 +70,30 @@ function TXDialog() {
             <BalanceInput>
               <Spinner
                 color="#C08FFF"
-                ratio={0.6}
+                ratio={ratio}
+                onChange={setRatio}
                 title="LTV"
                 description={{
-                  start: <span></span>,
-                  middle: <span></span>,
-                  end: <span></span>,
+                  start: (
+                    <span>
+                      <span className={spinnerWhiteSemiBold}>
+                        {Math.floor(ratio * 100)}%
+                      </span>
+                      <span className={spinnerSmallText}> | Current LTV</span>
+                    </span>
+                  ),
+                  middle: (
+                    <span>
+                      <span className={spinnerWhiteSemiBold}>50%</span>
+                      <span className={spinnerSmallText}> | Target LTV</span>
+                    </span>
+                  ),
+                  end: (
+                    <span>
+                      <span className={spinnerSmallText}>Maximum LTV | </span>
+                      <span className={spinnerWhiteSemiBold}>80%</span>
+                    </span>
+                  ),
                 }}
               ></Spinner>
             </BalanceInput>
@@ -98,12 +129,12 @@ function TXDialog() {
             <BalanceInput>
               <Spinner
                 color="#0ED883"
-                ratio={0.6}
+                ratio={ratio}
+                onChange={setRatio}
                 title="Flashlone Deleverage"
                 description={{
-                  start: <span>1X</span>,
-                  middle: <span>2X</span>,
-                  end: <span>4X</span>,
+                  start: <span className={spinnerWhiteSemiBold}>1X</span>,
+                  end: <span className={spinnerWhiteSemiBold}>0X</span>,
                 }}
               ></Spinner>
             </BalanceInput>
@@ -125,7 +156,21 @@ function TXDialog() {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <button>Open Form</button>
+        <div
+          className={css({
+            backgroundColor: "#565656",
+            height: "48px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            borderRadius: "10px",
+            color: "white",
+            fontWeight: "semibold",
+            fontSize: "18px",
+          })}
+        >
+          Manage
+        </div>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay

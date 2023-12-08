@@ -81,7 +81,8 @@ function Withdraw(props: WithdrawProps) {
                   fontSize: "12px",
                 })}
               >
-                |Borrow used
+                {" "}
+                | Borrow used
               </span>
             </span>
           ),
