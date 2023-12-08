@@ -1,7 +1,7 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { object, string } from "yup";
-import assets from "../assets";
+import assets, { tokenIconMap, tokenWhitelist } from "../assets";
 import DashBoardSection from "../../DashBoardSection";
 import { css } from "../../../../../../styled-system/css";
 import DashBoardOverviewStatus from "../../DashBoardOverviewStatus";
@@ -17,15 +17,6 @@ const paramsSchema = object({
     .required()
     .oneOf(assets.filter((x) => x.isActive).map((x) => x.name.toLowerCase())),
 }).required();
-
-const tokenWhitelist = ["DAI", "USDT", "USDC", "WETH"] as const;
-
-const tokenIconMap: Record<(typeof tokenWhitelist)[number], string> = {
-  DAI: "/assets/dai.svg",
-  USDC: "/assets/usdc.svg",
-  USDT: "/assets/usdt.svg",
-  WETH: "/assets/eth.svg",
-};
 
 export default function DefiAssets() {
   const params = useParams();
@@ -103,6 +94,7 @@ export default function DefiAssets() {
                   return (
                     <PositionCard
                       key={itemKey}
+                      tokenName={itemKey}
                       iconSrc={tokenIconMap[itemKey]}
                       netWorth={0}
                       supply={0}

@@ -15,6 +15,7 @@ import Supply from "./Supply";
 import Borrow from "./Borrow";
 import Withdraw from "./Withdraw";
 import Close from "./Close";
+import { TokenKey, tokenIconMap } from "../../assets";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -29,7 +30,7 @@ const spinnerSmallText = css({
   color: "#BEC3AF",
 });
 
-function TXDialog() {
+function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, setIndex] = useState(0);
   const [ratio, setRatio] = useState(0.73);
@@ -211,7 +212,7 @@ function TXDialog() {
           >
             <div className={hstack({})}>
               <Image
-                src="/assets/compound.png"
+                src={tokenIconMap[tokenName]}
                 height={64}
                 width={64}
                 alt=""
@@ -224,7 +225,7 @@ function TXDialog() {
                   color: "white",
                 })}
               >
-                ETH
+                {tokenName}
               </span>
             </div>
             <Dialog.Close asChild>

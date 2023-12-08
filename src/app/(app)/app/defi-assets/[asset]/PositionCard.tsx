@@ -3,8 +3,10 @@ import Image from "next/image";
 import { center } from "../../../../../../styled-system/patterns";
 import React from "react";
 import TXDialog from "./TXDialog";
+import { TokenKey } from "../assets";
 
 function PositionCard({
+  tokenName,
   iconSrc,
   netWorth,
   supply,
@@ -12,6 +14,7 @@ function PositionCard({
   badgeText,
   badgeColor,
 }: {
+  tokenName: TokenKey;
   iconSrc: string;
   netWorth: number;
   supply: number;
@@ -137,7 +140,7 @@ function PositionCard({
         ))}
       </div>
 
-      <TXDialog></TXDialog>
+      <TXDialog tokenName={tokenName}></TXDialog>
     </div>
   );
 }

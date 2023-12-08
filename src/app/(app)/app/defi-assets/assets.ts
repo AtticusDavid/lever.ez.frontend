@@ -31,4 +31,15 @@ const assets = [
   },
 ];
 
+export const tokenWhitelist = ["DAI", "USDT", "USDC", "WETH"] as const;
+
+export type TokenKey = (typeof tokenWhitelist)[number];
+
+export const tokenIconMap: Record<TokenKey, string> = {
+  DAI: "/assets/dai.svg",
+  USDC: "/assets/usdc.svg",
+  USDT: "/assets/usdt.svg",
+  WETH: "/assets/eth.svg",
+};
+
 export default assets;
