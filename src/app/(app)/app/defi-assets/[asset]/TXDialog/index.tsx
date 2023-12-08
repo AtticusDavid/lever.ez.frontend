@@ -26,50 +26,96 @@ function TXDialog() {
     return match(options[index])
       .with("Supply", () => {
         return (
-          <Supply
-            revnueEstimation="15 ETH"
-            compoundGovernanceToken="5 COMP"
-            supplyAmount="2k DAI + 0.28 ETH"
-            borrowAmount="5k DAI"
-            supplyAPR="2.3%"
-            borrowAPR="32%"
-          ></Supply>
+          <>
+            <BalanceInput>
+              <Spinner
+                color="#D70027"
+                ratio={0.6}
+                title="Flashlone Leverage"
+                description={{
+                  start: <span>1X</span>,
+                  middle: <span>2X</span>,
+                  end: <span>4X</span>,
+                }}
+              ></Spinner>
+            </BalanceInput>
+            <Supply
+              revnueEstimation="1514 ETH"
+              compoundGovernanceToken="5 COMP"
+              supplyAmount="2k DAI + 0.28 ETH"
+              borrowAmount="5k DAI"
+              supplyAPR="2.3%"
+              borrowAPR="32%"
+            ></Supply>
+          </>
         );
       })
       .with("Borrow", () => {
         return (
-          <Borrow
-            APR="-20%"
-            governanceAPR="128%"
-            supplyAmount="2k DAI + 0.28ETH"
-            borrowAmount="5k DAI"
-            borrowAPR="-8.3"
-            rewardAPR="123%"
-          ></Borrow>
+          <>
+            <BalanceInput>
+              <Spinner
+                color="#C08FFF"
+                ratio={0.6}
+                title="LTV"
+                description={{
+                  start: <span></span>,
+                  middle: <span></span>,
+                  end: <span></span>,
+                }}
+              ></Spinner>
+            </BalanceInput>
+            <Borrow
+              APR="-20%"
+              governanceAPR="128%"
+              supplyAmount="2k DAI + 0.28ETH"
+              borrowAmount="5k DAI"
+              borrowAPR="-8.3"
+              rewardAPR="123%"
+            ></Borrow>
+          </>
         );
       })
       .with("Withdraw", () => {
         return (
-          <Withdraw
-            amountSupplied="0 ETH"
-            amountBorrowed="0 ETH"
-            supplyAPR="1.64%"
-            rewardAPR="3.18% (1X)"
-            borrowUsedRatio={0.86452}
-            borrowAmount="$3,560.86"
-          ></Withdraw>
+          <>
+            <BalanceInput></BalanceInput>
+            <Withdraw
+              amountSupplied="0 ETH"
+              amountBorrowed="0 ETH"
+              supplyAPR="1.64%"
+              rewardAPR="3.18% (1X)"
+              borrowUsedRatio={0.86452}
+              borrowAmount="$3,560.86"
+            ></Withdraw>
+          </>
         );
       })
       .with("Close", () => {
         return (
-          <Close
-            currentLTV="72 %"
-            targetLTV="50 %"
-            supplyAmount="2k DAI + 0.28ETH"
-            borrowAmount="5k DAI"
-            borrowAPR="-8.3"
-            rewardAPR="123 %"
-          ></Close>
+          <>
+            <BalanceInput>
+              <Spinner
+                color="#0ED883"
+                ratio={0.6}
+                title="Flashlone Deleverage"
+                description={{
+                  start: <span>1X</span>,
+                  middle: <span>2X</span>,
+                  end: <span>4X</span>,
+                }}
+              ></Spinner>
+            </BalanceInput>
+
+            <Close
+              currentLTV="72 %"
+              targetLTV="50 %"
+              supplyAmount="2k DAI + 0.28ETH"
+              borrowAmount="5k DAI"
+              borrowAPR="-8.3"
+              rewardAPR="123 %"
+            ></Close>
+          </>
         );
       })
       .exhaustive();
@@ -198,21 +244,6 @@ function TXDialog() {
               {options[index]}
             </div>
           </div>
-
-          <BalanceInput>
-            {options[index] !== "Withdraw" ? (
-              <Spinner
-                color="#C08FFF"
-                ratio={0.6}
-                title="LTV"
-                description={{
-                  start: <span></span>,
-                  middle: <span></span>,
-                  end: <span></span>,
-                }}
-              ></Spinner>
-            ) : null}
-          </BalanceInput>
 
           {renderBody()}
           <Dialog.Close asChild>
