@@ -13,6 +13,16 @@ export default defineConfig({
   // Useful for theme customization
   theme: {
     extend: {
+      keyframes: {
+        carousel: {
+          from: {
+            transform: "translateX(0)",
+          },
+          to: {
+            transform: "translateX(280px)",
+          },
+        },
+      },
       breakpoints: {
         sm: "640px",
         md: "768px",

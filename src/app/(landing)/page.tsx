@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { css } from "../../../styled-system/css";
 import Link from "next/link";
+import { center, hstack } from "../../../styled-system/patterns";
+import CarouselItem from "./CarouselItem";
 
 export default function Home() {
   return (
@@ -15,13 +17,15 @@ export default function Home() {
           fontWeight: "bold",
         })}
       >
-        <Image
-          src="/logo.png"
-          alt="logo"
-          width={100}
-          height={100}
-          className={css({ marginBottom: "50px" })}
-        ></Image>
+        <div
+          className={center({
+            height: "100px",
+            width: "100px",
+          })}
+        >
+          <Image src="/logo3x.png" alt="logo" width={60} height={60}></Image>
+        </div>
+
         <div
           className={css({
             display: "flex",
@@ -31,25 +35,34 @@ export default function Home() {
           })}
         >
           <Image
-            src="/slogan.svg"
-            alt="Revolutionize yield Farming with Leverage"
-            width={800}
-            height={345}
-            className={css({ marginBottom: "80px" })}
+            src="/lever.png"
+            alt=""
+            width={100}
+            height={100}
+            className={css({
+              margin: "30px 0 80px 0",
+            })}
           ></Image>
+          <div
+            className={center({
+              fontFamily: "var(--font-dogica)",
+              fontSize: "84px",
+              fontWeight: "bold",
+            })}
+          >
+            Pull the lever,<br></br> Easy Success!
+          </div>
 
           <div
             className={css({
-              fontWeight: "24px",
-              marginBottom: "60px",
-              maxWidth: "990px",
+              fontSize: "36px",
+              fontWeight: "semibold",
+              margin: "50px 0 80px 0",
             })}
           >
-            Unlock a new investment era with Lever EZ, maximizing profits
-            through leverage and optimizing costs with efficient gas fees.
-            Introducing Flash Loans to tackle gas fee challenges in looping
-            investments, empowering users to leverage with minimal fees.
+            #Leverage #Easy #HugeGains #Success
           </div>
+
           <Link
             href="/app"
             className={css({
@@ -75,6 +88,21 @@ export default function Home() {
             ></Image>
             View App
           </Link>
+
+          <div
+            className={hstack({
+              alignItems: "flex-start",
+              gap: "20px",
+              animationDuration: "4s",
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+              animationName: "carousel",
+            })}
+          >
+            {Array.from({ length: 20 }).map((_, index) => {
+              return <CarouselItem key={index}></CarouselItem>;
+            })}
+          </div>
         </div>
       </div>
     </main>
