@@ -1,13 +1,13 @@
 const assets = [
   {
-    name: "Compound",
-    icon: "/assets/compound.png",
-    isActive: true,
-  },
-  {
     name: "Aave-v2",
     icon: "/assets/aave.png",
     isActive: true,
+  },
+  {
+    name: "Compound",
+    icon: "/assets/compound.png",
+    isActive: false,
   },
   {
     name: "Aave-v3",
