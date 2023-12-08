@@ -48,7 +48,7 @@ function DashBoardOverviewStatus({
             color,
           })}
         >
-          $ {balance}
+          $ {Math.floor(balance * 100) / 100}
         </span>
         <span
           className={css({

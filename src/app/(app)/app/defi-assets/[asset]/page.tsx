@@ -6,21 +6,45 @@ import DashBoardSection from "../../DashBoardSection";
 import { css } from "../../../../../../styled-system/css";
 import DashBoardOverviewStatus from "../../DashBoardOverviewStatus";
 import PositionCard from "./PositionCard";
-import { vstack } from "../../../../../../styled-system/patterns";
+import { hstack, vstack } from "../../../../../../styled-system/patterns";
 import UserIndicator from "./UserIndicator";
-import TXDialog from "./TXDialog";
 import CloseModal from "./CloseModal";
+import { useQuery } from "wagmi";
+import { LendingStatusResponse } from "@/app/api/lending-status/route";
 
 const paramsSchema = object({
   asset: string()
     .required()
-    .oneOf(assets.map((x) => x.name.toLowerCase())),
+    .oneOf(assets.filter((x) => x.isActive).map((x) => x.name.toLowerCase())),
 }).required();
+
+const tokenWhitelist = ["DAI", "USDT", "USDC", "WETH"] as const;
+
+const tokenIconMap: Record<(typeof tokenWhitelist)[number], string> = {
+  DAI: "/assets/dai.svg",
+  USDC: "/assets/usdc.svg",
+  USDT: "/assets/usdt.svg",
+  WETH: "/assets/eth.svg",
+};
 
 export default function DefiAssets() {
   const params = useParams();
 
+  const { data } = useQuery(["lending-status"], () =>
+    fetch("/api/lending-status").then(
+      (r) => r.json() as Promise<LendingStatusResponse>
+    )
+  );
+
+  console.log({ data });
   paramsSchema.validateSync(params);
+
+  const supplied = data ? data.user.totalCollateralUSD : 0;
+  const borrowed = data ? data.user.totalDebtUSD : 0;
+  const netWorth = supplied - borrowed;
+
+  const currentLTV = data ? (supplied ? borrowed / supplied : 0) : 0;
+  const maxLTV = data ? data.user.ltv : 0;
 
   return (
     <div
@@ -43,19 +67,19 @@ export default function DefiAssets() {
             <DashBoardOverviewStatus
               description="Net Worth"
               color="#ffffff"
-              balance={0}
+              balance={netWorth}
               iconSrc="/icon/net-worth.png"
             ></DashBoardOverviewStatus>
             <DashBoardOverviewStatus
               description="Supplied"
               color="#B8FF04"
-              balance={0}
+              balance={supplied}
               iconSrc="/icon/supplied.png"
             ></DashBoardOverviewStatus>
             <DashBoardOverviewStatus
               description="Borrowed"
               color="#C08FFF"
-              balance={0}
+              balance={borrowed}
               iconSrc="/icon/borrowed.png"
             ></DashBoardOverviewStatus>
           </div>
@@ -67,14 +91,29 @@ export default function DefiAssets() {
         </div>
       </DashBoardSection>
       <DashBoardSection title="Your Positions">
-        <PositionCard
-          iconSrc="/assets/uniswap-v3.png"
-          netWorth={0}
-          supply={0}
-          borrow={0}
-          badgeColor="#D70027"
-          badgeText="Dangerous"
-        ></PositionCard>
+        <div
+          className={hstack({
+            flexWrap: "wrap",
+          })}
+        >
+          {data
+            ? tokenWhitelist
+                .filter((x) => x in data)
+                .map((itemKey) => {
+                  return (
+                    <PositionCard
+                      key={itemKey}
+                      iconSrc={tokenIconMap[itemKey]}
+                      netWorth={0}
+                      supply={0}
+                      borrow={0}
+                      badgeColor="#D70027"
+                      badgeText="Dangerous"
+                    ></PositionCard>
+                  );
+                })
+            : null}
+        </div>
       </DashBoardSection>
       <CloseModal></CloseModal>
     </div>

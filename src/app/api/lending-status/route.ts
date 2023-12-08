@@ -44,7 +44,16 @@ export type LendingStatusResponse = Record<
     utilizationRate: number;
     liquidationPenalty: number;
   }
->;
+> & {
+  user: {
+    totalCollateralUSD: number;
+    totalDebtUSD: number;
+    availableBorrowsUSD: number;
+    ltv: number;
+    healthFactor: number;
+    currentLTV: number;
+  };
+};
 
 export async function GET(request: Request) {
   const blockchain = "ethereumSepolia" as const;
