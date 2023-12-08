@@ -16,6 +16,8 @@ function Spinner({
   ratio,
   title,
   description,
+  minimumRatio,
+  onChange,
 }: {
   title?: string;
   color: string;
@@ -25,12 +27,16 @@ function Spinner({
     end?: React.ReactNode;
   };
   ratio: number;
+  minimumRatio?: number;
+  onChange?: (value: number) => void;
 }) {
-  const [value, setValue] = useState(ratio);
+  const [value] = useState(ratio);
 
+  const isReadOnly = !onChange;
   const isDragging = useRef(false);
 
   const onDrag: PointerEventHandler<HTMLDivElement> = (event) => {
+    if (isReadOnly) return;
     if (!isDragging.current) return;
     const target = event.target;
     const parent = event.currentTarget;
@@ -46,7 +52,11 @@ function Spinner({
     const body = document.querySelector("#spinner-body");
     if (!(body instanceof HTMLDivElement)) return;
     const length = body.offsetWidth;
-    setValue(x / length);
+    if (minimumRatio) {
+      onChange(Math.min(minimumRatio, x / length));
+      return;
+    }
+    onChange(x / length);
   };
 
   return (
@@ -108,6 +118,7 @@ function Spinner({
               } as React.CSSProperties
             }
             className={circle({
+              position: "relative",
               height: "10px",
               width: "calc(var(--ratio) - 10px)",
               backgroundColor: "var(--color)",
@@ -142,6 +153,36 @@ function Spinner({
               </div>
             </div>
           </div>
+          {minimumRatio !== null ? (
+            <div
+              style={
+                {
+                  "--minimum-ratio": `${Math.floor(
+                    (minimumRatio ?? 0) * 100
+                  )}%`,
+                } as React.CSSProperties
+              }
+              className={css({
+                position: "absolute",
+                left: "0px",
+                top: "0px",
+                width: "calc(100% - 20px)",
+                height: "20px",
+                padding: "0 10px",
+              })}
+            >
+              <div
+                className={circle({
+                  top: "0px",
+                  left: "calc(var(--minimum-ratio))",
+                  position: "absolute",
+                  width: "20px",
+                  height: "20px",
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                })}
+              ></div>
+            </div>
+          ) : null}
         </div>
       </div>
       <div

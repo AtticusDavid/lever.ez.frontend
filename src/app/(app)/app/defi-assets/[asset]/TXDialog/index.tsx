@@ -31,6 +31,7 @@ function TXDialog() {
               <Spinner
                 color="#D70027"
                 ratio={0.6}
+                minimumRatio={0.4}
                 title="Flashlone Leverage"
                 description={{
                   start: <span>1X</span>,
