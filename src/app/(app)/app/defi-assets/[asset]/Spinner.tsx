@@ -17,12 +17,12 @@ function Spinner({
   title,
   description,
 }: {
-  title: string;
+  title?: string;
   color: string;
   description: {
-    start: React.ReactNode;
-    middle: React.ReactNode;
-    end: React.ReactNode;
+    start?: React.ReactNode;
+    middle?: React.ReactNode;
+    end?: React.ReactNode;
   };
   ratio: number;
 }) {
@@ -61,21 +61,23 @@ function Spinner({
         alignItems: "stretch",
       })}
     >
-      <div>
-        <span
-          className={center({
-            display: "inline-flex",
-            borderRadius: "10px",
-            padding: "3px 13px",
-            fontSize: "14px",
-            fontWeight: "semibold",
-            color: "var(--color)",
-            border: "1px solid var(--color)",
-          })}
-        >
-          {title}
-        </span>
-      </div>
+      {title ? (
+        <div>
+          <span
+            className={center({
+              display: "inline-flex",
+              borderRadius: "10px",
+              padding: "3px 13px",
+              fontSize: "14px",
+              fontWeight: "semibold",
+              color: "var(--color)",
+              border: "1px solid var(--color)",
+            })}
+          >
+            {title}
+          </span>
+        </div>
+      ) : null}
 
       <div>
         <div
@@ -147,9 +149,9 @@ function Spinner({
           justifyContent: "space-between",
         })}
       >
-        {description.start}
-        {description.middle}
-        {description.end}
+        {description.start ?? <span></span>}
+        {description.middle ?? <span></span>}
+        {description.end ?? <span></span>}
       </div>
     </div>
   );

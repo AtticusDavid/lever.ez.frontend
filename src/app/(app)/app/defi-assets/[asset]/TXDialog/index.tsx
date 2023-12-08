@@ -1,50 +1,79 @@
 "use client";
 import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
-import { css } from "../../../../../../styled-system/css";
+import { css } from "../../../../../../../styled-system/css";
 import {
   center,
   hstack,
   vstack,
-} from "../../../../../../styled-system/patterns";
+} from "../../../../../../../styled-system/patterns";
+import { match } from "ts-pattern";
 import React, { useState } from "react";
-import Spinner from "./Spinner";
+import Spinner from "../Spinner";
+import BalanceInput from "./BalanceInput";
+import Supply from "./Supply";
+import Borrow from "./Borrow";
+import Withdraw from "./Withdraw";
+import Close from "./Close";
 
-const options = ["Supply", "Withdraw", "Borrow", "Close"];
-const interestDebtData = {
-  big: [
-    {
-      label: "AVR",
-      value: "-20%",
-    },
-    {
-      label: "Governance APR",
-      value: "120%",
-    },
-  ],
-  small: [
-    {
-      label: "Supply Amount",
-      value: "2k DAI + 0.28 ETH",
-    },
-    {
-      label: "Borrow APR",
-      value: "-8.3",
-    },
-    {
-      label: "Borrow Amount",
-      value: "5k DAI",
-    },
-    {
-      label: "Reward APR",
-      value: "-123%",
-    },
-  ],
-};
+const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
 function TXDialog() {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, setIndex] = useState(0);
+
+  function renderBody() {
+    return match(options[index])
+      .with("Supply", () => {
+        return (
+          <Supply
+            revnueEstimation="15 ETH"
+            compoundGovernanceToken="5 COMP"
+            supplyAmount="2k DAI + 0.28 ETH"
+            borrowAmount="5k DAI"
+            supplyAPR="2.3%"
+            borrowAPR="32%"
+          ></Supply>
+        );
+      })
+      .with("Borrow", () => {
+        return (
+          <Borrow
+            APR="-20%"
+            governanceAPR="128%"
+            supplyAmount="2k DAI + 0.28ETH"
+            borrowAmount="5k DAI"
+            borrowAPR="-8.3"
+            rewardAPR="123%"
+          ></Borrow>
+        );
+      })
+      .with("Withdraw", () => {
+        return (
+          <Withdraw
+            amountSupplied="0 ETH"
+            amountBorrowed="0 ETH"
+            supplyAPR="1.64%"
+            rewardAPR="3.18% (1X)"
+            borrowUsedRatio={0.86452}
+            borrowAmount="$3,560.86"
+          ></Withdraw>
+        );
+      })
+      .with("Close", () => {
+        return (
+          <Close
+            currentLTV="72 %"
+            targetLTV="50 %"
+            supplyAmount="2k DAI + 0.28ETH"
+            borrowAmount="5k DAI"
+            borrowAPR="-8.3"
+            rewardAPR="123 %"
+          ></Close>
+        );
+      })
+      .exhaustive();
+  }
 
   return (
     <Dialog.Root>
@@ -169,131 +198,23 @@ function TXDialog() {
               {options[index]}
             </div>
           </div>
-          <div
-            className={vstack({
-              padding: "17px 25px",
-              backgroundColor: "#2C2C2B",
-              alignItems: "flex-start",
-              borderRadius: "10px",
-            })}
-          >
-            <span
-              className={css({
-                fontWeight: "semibold",
-              })}
-            >
-              Token Balance
-            </span>
-            <span
-              className={css({
-                fontWeight: "semibold",
-                fontSize: "26px",
-                color: "white",
-              })}
-            >
-              20ETH
-            </span>
-            <div
-              className={hstack({
-                backgroundColor: "#565656",
-                width: "100%",
-                borderRadius: "10px",
-              })}
-            >
-              <input
-                className={css({
-                  paddingLeft: "7px",
-                  flexGrow: "1",
-                  background: "none",
-                })}
-                placeholder="Amount to Borrow"
-              ></input>
-              <button
-                className={center({
-                  borderRadius: "10px",
-                  margin: "5px",
-                  padding: "5px 15px",
-                  fontSize: "18px",
-                  fontWeight: "semibold",
-                  backgroundColor: "#B8FF04",
-                  color: "black",
-                })}
-              >
-                Max
-              </button>
-            </div>
-            <Spinner
-              color="#C08FFF"
-              ratio={0.6}
-              title="LTV"
-              description={{
-                start: <span></span>,
-                middle: <span></span>,
-                end: <span></span>,
-              }}
-            ></Spinner>
-          </div>
-          <div>
-            <span className={css({ fontWeight: "semibold", fontSize: "18px" })}>
-              Interest Debt
-            </span>
-            <div
-              className={hstack({
-                justifyContent: "space-between",
-                padding: "35px 0",
-              })}
-            >
-              {interestDebtData.big.map((item) => {
-                return (
-                  <div
-                    key={item.label}
-                    className={hstack({
-                      justifyContent: "space-between",
-                    })}
-                  >
-                    <span>{item.label}</span>
-                    <span
-                      className={css({
-                        fontSize: "26px",
-                        fontWeight: "semibold",
-                        color: "white",
-                      })}
-                    >
-                      {item.value}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <table className={css({ width: "100%" })}>
-              {[0, 2].map((x) => {
-                return (
-                  <tr
-                    key={x}
-                    className={css({
-                      height: "30px",
-                    })}
-                  >
-                    {[0, 1].map((y) => {
-                      return (
-                        <React.Fragment key={x + y}>
-                          <td
-                            className={css({
-                              fontWeight: "semibold",
-                            })}
-                          >
-                            {interestDebtData.small[x + y].label}
-                          </td>
-                          <td>{interestDebtData.small[x + y].value}</td>
-                        </React.Fragment>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </table>
-          </div>
 
+          <BalanceInput>
+            {options[index] !== "Withdraw" ? (
+              <Spinner
+                color="#C08FFF"
+                ratio={0.6}
+                title="LTV"
+                description={{
+                  start: <span></span>,
+                  middle: <span></span>,
+                  end: <span></span>,
+                }}
+              ></Spinner>
+            ) : null}
+          </BalanceInput>
+
+          {renderBody()}
           <Dialog.Close asChild>
             <button
               className={center({

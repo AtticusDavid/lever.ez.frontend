@@ -1,0 +1,69 @@
+import { PropsWithChildren } from "react";
+import {
+  vstack,
+  center,
+  hstack,
+} from "../../../../../../../styled-system/patterns";
+import { css } from "../../../../../../../styled-system/css";
+
+function BalanceInput(props: PropsWithChildren<{}>) {
+  return (
+    <div
+      className={vstack({
+        padding: "17px 25px",
+        backgroundColor: "#2C2C2B",
+        alignItems: "flex-start",
+        borderRadius: "10px",
+      })}
+    >
+      <span
+        className={css({
+          fontWeight: "semibold",
+        })}
+      >
+        Token Balance
+      </span>
+      <span
+        className={css({
+          fontWeight: "semibold",
+          fontSize: "26px",
+          color: "white",
+        })}
+      >
+        20ETH
+      </span>
+      <div
+        className={hstack({
+          backgroundColor: "#565656",
+          width: "100%",
+          borderRadius: "10px",
+        })}
+      >
+        <input
+          className={css({
+            paddingLeft: "7px",
+            flexGrow: "1",
+            background: "none",
+          })}
+          placeholder="Amount to Borrow"
+        ></input>
+        <button
+          className={center({
+            borderRadius: "10px",
+            margin: "5px",
+            padding: "5px 15px",
+            fontSize: "18px",
+            fontWeight: "semibold",
+            backgroundColor: "#B8FF04",
+            color: "black",
+          })}
+        >
+          Max
+        </button>
+      </div>
+      {props.children}
+    </div>
+  );
+}
+
+export default BalanceInput;
