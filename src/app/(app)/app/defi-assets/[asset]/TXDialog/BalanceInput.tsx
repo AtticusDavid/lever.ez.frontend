@@ -7,7 +7,12 @@ import {
 import { css } from "../../../../../../../styled-system/css";
 
 function BalanceInput(
-  props: PropsWithChildren<{ value: string; onChange: (value: string) => void }>
+  props: PropsWithChildren<{
+    balance: string;
+    value: string;
+    onChange: (value: string) => void;
+    onClickMax?: () => void;
+  }>
 ) {
   return (
     <div
@@ -32,7 +37,7 @@ function BalanceInput(
           color: "white",
         })}
       >
-        20ETH
+        {props.balance}
       </span>
       <div
         className={hstack({
@@ -55,6 +60,9 @@ function BalanceInput(
           placeholder="Amount to Borrow"
         ></input>
         <button
+          onClick={() => {
+            if (props.onClickMax) props.onClickMax();
+          }}
           className={center({
             borderRadius: "10px",
             margin: "5px",

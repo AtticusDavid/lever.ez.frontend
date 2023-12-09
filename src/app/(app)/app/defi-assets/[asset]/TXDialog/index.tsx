@@ -17,6 +17,7 @@ import Withdraw from "./Withdraw";
 import Close from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
 import useLendingStatus from "@/hooks/useLendingStatus";
+import { formatUnits } from "viem";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -34,18 +35,34 @@ const spinnerSmallText = css({
 function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, setIndex] = useState(0);
-  const [inputAmount, setInputAmount] = useState("0");
+  const [inputAmount, setInputAmount] = useState("");
   const [ratio, setRatio] = useState(0);
   const leverage = ratio * 3 + 1;
 
   const { data } = useLendingStatus();
+
+  const balance = data
+    ? `${formatUnits(
+        BigInt(data.balances[tokenName].balance),
+        parseInt(data.balances[tokenName].decimals)
+      )}`
+    : `0`;
+
+  const balanceInputProps = {
+    balance: `${balance} ${tokenName}`,
+    value: inputAmount,
+    onChange: setInputAmount,
+    onClickMax: () => {
+      setInputAmount(balance);
+    },
+  };
 
   function renderBody() {
     return match(options[index])
       .with("Supply", () => {
         const supplyProps = data
           ? getSupplyProps({
-              inputAmount: parseInt(inputAmount),
+              inputAmount: parseInt(inputAmount || "0"),
               leverage,
               data,
               tokenName,
@@ -61,7 +78,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
         return (
           <>
-            <BalanceInput value={inputAmount} onChange={setInputAmount}>
+            <BalanceInput {...balanceInputProps}>
               <Spinner
                 color="#D70027"
                 ratio={ratio}
@@ -99,7 +116,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Borrow", () => {
         return (
           <>
-            <BalanceInput value={inputAmount} onChange={setInputAmount}>
+            <BalanceInput {...balanceInputProps}>
               <Spinner
                 color="#C08FFF"
                 ratio={ratio}
@@ -143,10 +160,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Withdraw", () => {
         return (
           <>
-            <BalanceInput
-              value={inputAmount}
-              onChange={setInputAmount}
-            ></BalanceInput>
+            <BalanceInput {...balanceInputProps}></BalanceInput>
             <Withdraw
               amountSupplied="0 ETH"
               amountBorrowed="0 ETH"
@@ -161,7 +175,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Close", () => {
         return (
           <>
-            <BalanceInput value={inputAmount} onChange={setInputAmount}>
+            <BalanceInput {...balanceInputProps}>
               <Spinner
                 color="#0ED883"
                 ratio={ratio}
