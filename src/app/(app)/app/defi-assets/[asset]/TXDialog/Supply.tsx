@@ -1,15 +1,113 @@
 import React from "react";
 import { css } from "../../../../../../../styled-system/css";
 import { hstack } from "../../../../../../../styled-system/patterns";
+import {
+  AaveFloatStatus,
+  AaveIncentiveStatus,
+  Balances,
+  LendingStatusResponse,
+  getFloatValueDivDecimals,
+} from "@/app/api/lending-status/route";
+import {
+  calculateFlashloanLeverageToTargetLTV,
+  calculateFlashloanLeverageBaseAmount,
+} from "@/hardhat/utils";
+import { TokenKey } from "../../assets";
 
 type SupplyProps = {
-  revnueEstimation: string;
+  revenueEstimation: string;
   compoundGovernanceToken: string;
   supplyAmount: string;
   borrowAmount: string;
   supplyAPR: string;
   borrowAPR: string;
 };
+
+export function getSupplyProps({
+  inputAmount,
+  data,
+  leverage,
+  tokenName,
+}: {
+  inputAmount: number;
+  leverage: number;
+  data: LendingStatusResponse;
+  tokenName: TokenKey;
+}): SupplyProps {
+  const { balances, status, incentiveStatus } = data;
+  const aToken = `a${tokenName}` as const;
+  const vToken = `v${tokenName}` as const;
+
+  const supplyAmount = getFloatValueDivDecimals(
+    balances[aToken]["balance"],
+    balances[aToken]["decimals"]
+  );
+  const borrowAmount = getFloatValueDivDecimals(
+    balances[vToken]["balance"],
+    balances[vToken]["decimals"]
+  );
+
+  const { targetLTV } = calculateFlashloanLeverageToTargetLTV(
+    inputAmount,
+    supplyAmount,
+    borrowAmount,
+    leverage,
+    1,
+    1,
+    0.001
+  );
+
+  const { flashloanAmount } = calculateFlashloanLeverageBaseAmount(
+    inputAmount,
+    supplyAmount,
+    borrowAmount / supplyAmount,
+    targetLTV,
+    1,
+    1,
+    0.001
+  );
+
+  const revenueEstimation =
+    (inputAmount + supplyAmount + flashloanAmount) *
+      (status[tokenName]["supplyAPR"] as number) -
+    (targetLTV * (status[tokenName]["variableBorrowAPR"] as number)) / 100;
+  let compoundGovernanceToken = 0;
+
+  incentiveStatus[tokenName]["rewards"].forEach((reward) => {
+    if (reward.token !== "AAVE") {
+      return;
+    }
+    const rewardTokenPrice = getFloatValueDivDecimals(
+      reward.tokenPrice,
+      reward.tokenPriceDecimals
+    );
+    const rewardAPR = getFloatValueDivDecimals(reward.APR, "6");
+
+    if (reward.isAToken) {
+      compoundGovernanceToken +=
+        (rewardAPR *
+          (inputAmount + supplyAmount + flashloanAmount) *
+          (status[tokenName].price as number)) /
+        rewardTokenPrice;
+    } else {
+      compoundGovernanceToken +=
+        (rewardAPR *
+          (inputAmount + supplyAmount + flashloanAmount) *
+          targetLTV *
+          (status[tokenName].price as number)) /
+        rewardTokenPrice;
+    }
+  });
+
+  return {
+    revenueEstimation: revenueEstimation.toString(),
+    compoundGovernanceToken: compoundGovernanceToken.toString(),
+    supplyAmount: supplyAmount.toString(),
+    borrowAmount: borrowAmount.toString(),
+    supplyAPR: status[tokenName]["supplyAPR"].toString(),
+    borrowAPR: status[tokenName]["variableBorrowAPR"].toString(),
+  };
+}
 
 function Supply(props: SupplyProps) {
   const data = [
@@ -44,7 +142,7 @@ function Supply(props: SupplyProps) {
         {[
           {
             label: "ETH",
-            value: props.revnueEstimation,
+            value: props.revenueEstimation,
           },
           {
             label: "Compound Governance Token",

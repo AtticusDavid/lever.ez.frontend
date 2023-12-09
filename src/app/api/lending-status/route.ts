@@ -34,7 +34,7 @@ import { ethers, Wallet, getBigInt } from "ethers";
 export const dynamic = "force-dynamic"; // defaults to force-static
 
 type BalanceToken = "DAI" | "USDC" | "USDT" | "WETH";
-type Balances = Record<
+export type Balances = Record<
   BalanceToken | `a${BalanceToken}` | `v${BalanceToken}`,
   {
     decimals: string;
@@ -48,8 +48,11 @@ type Balances = Record<
   };
 };
 
+export type AaveIncentiveStatus = Record<BalanceToken, APR>;
+
 export type LendingStatusResponse = {
   status: AaveFloatStatus;
+  incentiveStatus: AaveIncentiveStatus;
   supplyProps: SupplyProps;
   balances: Balances;
 };
@@ -616,12 +619,13 @@ export async function GET(request: Request) {
 
   return Response.json({
     status: aaveFloatStatus,
+    incentiveStatus: aaveV3IncentiveStatus,
     supplyProps,
     balances,
   });
 }
 
-function getFloatValueDivDecimals(value: string, decimals: string) {
+export function getFloatValueDivDecimals(value: string, decimals: string) {
   return (
     parseFloat(value) /
     parseFloat((getBigInt(10) ** getBigInt(decimals)).toString())

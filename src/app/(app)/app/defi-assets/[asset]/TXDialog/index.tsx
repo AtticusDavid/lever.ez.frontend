@@ -11,11 +11,12 @@ import { match } from "ts-pattern";
 import React, { useState } from "react";
 import Spinner from "../Spinner";
 import BalanceInput from "./BalanceInput";
-import Supply from "./Supply";
+import Supply, { getSupplyProps } from "./Supply";
 import Borrow from "./Borrow";
 import Withdraw from "./Withdraw";
 import Close from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
+import useLendingStatus from "@/hooks/useLendingStatus";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -33,11 +34,31 @@ const spinnerSmallText = css({
 function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, setIndex] = useState(0);
-  const [ratio, setRatio] = useState(0.73);
+  const [inputAmount, setInputAmount] = useState("0");
+  const [ratio, setRatio] = useState(0);
+  const leverage = ratio * 3 + 1;
+
+  const { data } = useLendingStatus();
 
   function renderBody() {
     return match(options[index])
       .with("Supply", () => {
+        const supplyProps = data
+          ? getSupplyProps({
+              inputAmount: parseInt(inputAmount),
+              leverage,
+              data,
+              tokenName,
+            })
+          : {
+              revenueEstimation: "0",
+              compoundGovernanceToken: "0",
+              supplyAmount: "0",
+              borrowAmount: "0",
+              supplyAPR: "0",
+              borrowAPR: "0",
+            };
+
         return (
           <>
             <BalanceInput>
@@ -45,22 +66,32 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 color="#D70027"
                 ratio={ratio}
                 onChange={setRatio}
-                minimumRatio={0.4}
                 title="Flashlone Leverage"
                 description={{
                   start: <span className={spinnerWhiteSemiBold}>1X</span>,
-                  middle: <span className={spinnerWhiteSemiBold}>2X</span>,
+                  middle: (
+                    <span>
+                      <span className={spinnerWhiteSemiBold}>
+                        ${Math.floor(leverage * 100) / 100}X
+                      </span>
+                      <span className={spinnerSmallText}>
+                        {" "}
+                        | Current Leverage
+                      </span>
+                    </span>
+                  ),
                   end: <span className={spinnerWhiteSemiBold}>4X</span>,
                 }}
               ></Spinner>
             </BalanceInput>
             <Supply
-              revnueEstimation="1514 ETH"
-              compoundGovernanceToken="5 COMP"
-              supplyAmount="2k DAI + 0.28 ETH"
-              borrowAmount="5k DAI"
-              supplyAPR="2.3%"
-              borrowAPR="32%"
+              {...supplyProps}
+              // revnueEstimation="1514 ETH"
+              // compoundGovernanceToken="5 COMP"
+              // supplyAmount="2k DAI + 0.28 ETH"
+              // borrowAmount="5k DAI"
+              // supplyAPR="2.3%"
+              // borrowAPR="32%"
             ></Supply>
           </>
         );
