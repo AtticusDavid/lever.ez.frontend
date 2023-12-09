@@ -9,10 +9,11 @@ import {
 } from "@/hardhat/utils";
 import { TokenKey } from "../../assets";
 import { prettify } from "@/utils";
+import { token } from "@/hardhat/typechain-types/@openzeppelin/contracts";
 
 type SupplyProps = {
   revenueEstimation: string;
-  compoundGovernanceToken: string;
+  governanceToken: string;
   supplyAmount: string;
   borrowAmount: string;
   supplyAPR: string;
@@ -96,12 +97,14 @@ export function getSupplyProps({
   });
 
   return {
-    revenueEstimation: revenueEstimation.toString(),
-    compoundGovernanceToken: compoundGovernanceToken.toString(),
-    supplyAmount: supplyAmount.toString(),
-    borrowAmount: borrowAmount.toString(),
-    supplyAPR: status[tokenName]["supplyAPR"].toString(),
-    borrowAPR: status[tokenName]["variableBorrowAPR"].toString(),
+    revenueEstimation: prettify(revenueEstimation.toString()) + " " + tokenName,
+    governanceToken:
+      prettify(compoundGovernanceToken.toString()) + " " + "AAVE",
+    supplyAmount: prettify(supplyAmount.toString()) + " " + tokenName,
+    borrowAmount: prettify(borrowAmount.toString()) + " " + tokenName,
+    supplyAPR: prettify(status[tokenName]["supplyAPR"].toString()) + "%",
+    borrowAPR:
+      prettify(status[tokenName]["variableBorrowAPR"].toString()) + "%",
   };
 }
 
@@ -137,12 +140,12 @@ function Supply(props: SupplyProps) {
       >
         {[
           {
-            label: "ETH",
+            label: "-",
             value: props.revenueEstimation,
           },
           {
-            label: "Compound Governance Token",
-            value: props.compoundGovernanceToken,
+            label: "Governance Token",
+            value: props.governanceToken,
           },
         ].map((item) => {
           return (
@@ -168,7 +171,7 @@ function Supply(props: SupplyProps) {
                   color: "white",
                 })}
               >
-                {prettify(item.value)}
+                {item.value}
               </span>
             </div>
           );
@@ -193,7 +196,7 @@ function Supply(props: SupplyProps) {
                     >
                       {data[x + y].label}
                     </td>
-                    <td>{prettify(data[x + y].value)}</td>
+                    <td>{data[x + y].value}</td>
                   </React.Fragment>
                 );
               })}

@@ -67,25 +67,17 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   function renderBody() {
     return match(options[index])
       .with("Supply", () => {
-        const supplyProps = data
-          ? getSupplyProps({
-              inputAmount: parseInt(inputAmount || "0"),
-              leverage,
-              data,
-              tokenName,
-            })
-          : {
-              revenueEstimation: "0",
-              compoundGovernanceToken: "0",
-              supplyAmount: "0",
-              borrowAmount: "0",
-              supplyAPR: "0",
-              borrowAPR: "0",
-            };
+        if (!data) return <div></div>;
+        const supplyProps = getSupplyProps({
+          inputAmount: parseInt(inputAmount || "0"),
+          leverage,
+          data,
+          tokenName,
+        });
 
         return (
           <>
-            <BalanceInput {...balanceInputProps}>
+            <BalanceInput {...balanceInputProps} placeHolder="Amount to Supply">
               <Spinner
                 color="#D70027"
                 ratio={ratio}
@@ -125,6 +117,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         return (
           <>
             <BalanceInput
+              placeHolder="Amount to Borrow"
               description="Max Borrowable Amount"
               value={inputAmount}
               balance={`${prettify(
@@ -203,7 +196,8 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         return (
           <>
             <BalanceInput
-              description="Max Borrowable Amount"
+              placeHolder="Amount to Withdraw"
+              description="Max Withdrawable Amount"
               value={inputAmount}
               balance={`${prettify(
                 withdrawProps.withdrawableAmount,
@@ -237,7 +231,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
         return (
           <>
-            <BalanceInput {...balanceInputProps}>
+            <BalanceInput {...balanceInputProps} placeHolder="Amount to Close">
               <Spinner
                 color="#0ED883"
                 ratio={ratio}

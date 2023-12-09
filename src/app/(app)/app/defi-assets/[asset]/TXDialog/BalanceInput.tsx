@@ -8,6 +8,7 @@ import { css } from "../../../../../../../styled-system/css";
 
 function BalanceInput(
   props: PropsWithChildren<{
+    placeHolder: string;
     description?: string;
     balance: string;
     value: string;
@@ -58,7 +59,7 @@ function BalanceInput(
             flexGrow: "1",
             background: "none",
           })}
-          placeholder="Amount to Borrow"
+          placeholder={props.placeHolder}
         ></input>
         <button
           onClick={() => {
