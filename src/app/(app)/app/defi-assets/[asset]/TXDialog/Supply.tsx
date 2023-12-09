@@ -1,13 +1,7 @@
 import React from "react";
 import { css } from "../../../../../../../styled-system/css";
 import { hstack } from "../../../../../../../styled-system/patterns";
-import {
-  AaveFloatStatus,
-  AaveIncentiveStatus,
-  Balances,
-  LendingStatusResponse,
-  getFloatValueDivDecimals,
-} from "@/app/api/lending-status/route";
+import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import {
   calculateFlashloanLeverageToTargetLTV,
   calculateFlashloanLeverageBaseAmount,
@@ -23,6 +17,12 @@ type SupplyProps = {
   supplyAPR: string;
   borrowAPR: string;
 };
+
+function getFloatValueDivDecimals(value: string, decimals: string) {
+  return (
+    parseFloat(value) / parseFloat((BigInt(10) ** BigInt(decimals)).toString())
+  );
+}
 
 export function getSupplyProps({
   inputAmount,

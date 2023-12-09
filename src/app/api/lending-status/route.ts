@@ -624,8 +624,7 @@ export async function GET(request: Request) {
     balances,
   });
 }
-
-export function getFloatValueDivDecimals(value: string, decimals: string) {
+function getFloatValueDivDecimals(value: string, decimals: string) {
   return (
     parseFloat(value) /
     parseFloat((getBigInt(10) ** getBigInt(decimals)).toString())

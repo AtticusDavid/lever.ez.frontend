@@ -3,7 +3,13 @@
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createConfig, sepolia, WagmiConfig } from "wagmi";
+import {
+  configureChains,
+  createConfig,
+  createStorage,
+  sepolia,
+  WagmiConfig,
+} from "wagmi";
 import {
   mainnet,
   polygonMumbai,
@@ -35,6 +41,9 @@ const { connectors } = getDefaultWallets({
 const wagmiConfig = createConfig({
   autoConnect: true,
   connectors,
+  storage: createStorage({
+    storage: window.sessionStorage,
+  }),
   publicClient,
 });
 
