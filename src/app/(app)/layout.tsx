@@ -41,9 +41,12 @@ const { connectors } = getDefaultWallets({
 const wagmiConfig = createConfig({
   autoConnect: true,
   connectors,
-  storage: createStorage({
-    storage: window.sessionStorage,
-  }),
+  storage:
+    typeof window === "undefined"
+      ? undefined
+      : createStorage({
+          storage: window.sessionStorage,
+        }),
   publicClient,
 });
 
