@@ -10,6 +10,7 @@ import { hstack, vstack } from "../../../../../../styled-system/patterns";
 import UserIndicator from "./UserIndicator";
 import CloseModal from "./CloseModal";
 import useLendingStatus from "@/hooks/useLendingStatus";
+import { formatUnits } from "viem";
 
 const paramsSchema = object({
   asset: string()
@@ -86,14 +87,40 @@ export default function DefiAssets() {
             ? tokenWhitelist
                 .filter((x) => x in data.status)
                 .map((itemKey) => {
+                  const info = data.status[itemKey];
+                  const supplyTokenName = `a${itemKey}` as const;
+                  const debtTokenName = `v${itemKey}` as const;
+
+                  const supplyBalance = data.balances[supplyTokenName];
+                  const debtBalance = data.balances[debtTokenName];
+
+                  const supply = formatUnits(
+                    BigInt(supplyBalance.balance) * BigInt(info.price),
+                    parseInt(supplyBalance.decimals)
+                  );
+
+                  const borrow = formatUnits(
+                    BigInt(debtBalance.balance) * BigInt(info.price),
+                    parseInt(debtBalance.decimals)
+                  );
+
+                  const netWorth = formatUnits(
+                    (BigInt(supplyBalance.balance) -
+                      BigInt(debtBalance.balance)) *
+                      BigInt(info.price),
+                    parseInt(debtBalance.decimals)
+                  );
+
+                  console.log({ info, itemKey, supply, borrow });
+
                   return (
                     <PositionCard
                       key={itemKey}
                       tokenName={itemKey}
                       iconSrc={tokenIconMap[itemKey]}
-                      netWorth={0}
-                      supply={0}
-                      borrow={0}
+                      netWorth={netWorth.slice(0, 4)}
+                      supply={supply.slice(0, 4)}
+                      borrow={borrow.slice(0, 4)}
                       badgeColor="#D70027"
                       badgeText="Dangerous"
                     ></PositionCard>

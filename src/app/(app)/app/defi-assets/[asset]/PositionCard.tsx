@@ -16,9 +16,9 @@ function PositionCard({
 }: {
   tokenName: TokenKey;
   iconSrc: string;
-  netWorth: number;
-  supply: number;
-  borrow: number;
+  netWorth: string;
+  supply: string;
+  borrow: string;
   badgeText: string;
   badgeColor: string;
 }) {
