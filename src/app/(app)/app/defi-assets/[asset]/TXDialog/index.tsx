@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import Spinner from "../Spinner";
 import BalanceInput from "./BalanceInput";
 import Supply, { getSupplyProps } from "./Supply";
-import Borrow from "./Borrow";
+import Borrow, { getBorrowProps } from "./Borrow";
 import Withdraw from "./Withdraw";
 import Close from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
@@ -52,7 +52,13 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const balanceInputProps = {
     balance: `${prettify(balance)} ${tokenName}`,
     value: inputAmount,
-    onChange: setInputAmount,
+    onChange: (value: string) => {
+      if (value && parseInt(value) > parseInt(balance)) {
+        setInputAmount(balance);
+        return;
+      }
+      setInputAmount(value);
+    },
     onClickMax: () => {
       setInputAmount(balance);
     },
@@ -102,59 +108,76 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 }}
               ></Spinner>
             </BalanceInput>
-            <Supply
-              {...supplyProps}
-              // revnueEstimation="1514 ETH"
-              // compoundGovernanceToken="5 COMP"
-              // supplyAmount="2k DAI + 0.28 ETH"
-              // borrowAmount="5k DAI"
-              // supplyAPR="2.3%"
-              // borrowAPR="32%"
-            ></Supply>
+            <Supply {...supplyProps}></Supply>
           </>
         );
       })
       .with("Borrow", () => {
+        if (!data) return <div></div>;
+
+        const borrowProps = getBorrowProps({
+          data,
+          borrowAmountInput: parseInt(inputAmount || "0"),
+          tokenName,
+        });
+        console.log({ borrowProps });
+
         return (
           <>
-            <BalanceInput {...balanceInputProps}>
+            <BalanceInput
+              description="Max Borrowable Amount"
+              value={inputAmount}
+              balance={`${prettify(
+                borrowProps.maxBorrowableAmount,
+                6
+              )} ${tokenName}`}
+              onChange={(value) => {
+                if (
+                  value &&
+                  parseInt(value) > parseInt(borrowProps.maxBorrowableAmount)
+                ) {
+                  setInputAmount(borrowProps.maxBorrowableAmount);
+                  return;
+                }
+                setInputAmount(value);
+              }}
+              onClickMax={() => {
+                setInputAmount(borrowProps.maxBorrowableAmount);
+              }}
+            >
               <Spinner
                 color="#C08FFF"
-                ratio={ratio}
-                onChange={setRatio}
+                ratio={borrowProps.afterLTV / 100}
                 title="LTV"
                 description={{
                   start: (
                     <span>
                       <span className={spinnerWhiteSemiBold}>
-                        {Math.floor(ratio * 100)}%
+                        {Math.floor(borrowProps.currentLTV * 100) / 100}%
                       </span>
                       <span className={spinnerSmallText}> | Current LTV</span>
                     </span>
                   ),
                   middle: (
                     <span>
-                      <span className={spinnerWhiteSemiBold}>50%</span>
+                      <span className={spinnerWhiteSemiBold}>
+                        {Math.floor(borrowProps.afterLTV * 100) / 100}%
+                      </span>
                       <span className={spinnerSmallText}> | Target LTV</span>
                     </span>
                   ),
                   end: (
                     <span>
                       <span className={spinnerSmallText}>Maximum LTV | </span>
-                      <span className={spinnerWhiteSemiBold}>80%</span>
+                      <span className={spinnerWhiteSemiBold}>
+                        {Math.floor(borrowProps.maxLTV * 100) / 100}%
+                      </span>
                     </span>
                   ),
                 }}
               ></Spinner>
             </BalanceInput>
-            <Borrow
-              APR="-20%"
-              governanceAPR="128%"
-              supplyAmount="2k DAI + 0.28ETH"
-              borrowAmount="5k DAI"
-              borrowAPR="-8.3"
-              rewardAPR="123%"
-            ></Borrow>
+            <Borrow {...borrowProps}></Borrow>
           </>
         );
       })

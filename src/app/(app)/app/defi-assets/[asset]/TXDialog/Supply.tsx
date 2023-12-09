@@ -5,6 +5,7 @@ import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import {
   calculateFlashloanLeverageToTargetLTV,
   calculateFlashloanLeverageBaseAmount,
+  getFloatValueDivDecimals,
 } from "@/hardhat/utils";
 import { TokenKey } from "../../assets";
 import { prettify } from "@/utils";
@@ -17,12 +18,6 @@ type SupplyProps = {
   supplyAPR: string;
   borrowAPR: string;
 };
-
-function getFloatValueDivDecimals(value: string, decimals: string) {
-  return (
-    parseFloat(value) / parseFloat((BigInt(10) ** BigInt(decimals)).toString())
-  );
-}
 
 export function getSupplyProps({
   inputAmount,

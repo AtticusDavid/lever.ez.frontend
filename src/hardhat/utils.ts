@@ -360,6 +360,12 @@ export function calculateFlashloanDeleverageBaseAmount(
   return { flashloanAmount: numerator / denominator };
 }
 
+export function getFloatValueDivDecimals(value: string, decimals: string) {
+  return (
+    parseFloat(value) / parseFloat((BigInt(10) ** BigInt(decimals)).toString())
+  );
+}
+
 export function calculateFlashloanLeverageBaseAmount(
   supplyAmt: number,
   suppliedAmt: number,

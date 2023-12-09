@@ -8,6 +8,7 @@ import { css } from "../../../../../../../styled-system/css";
 
 function BalanceInput(
   props: PropsWithChildren<{
+    description?: string;
     balance: string;
     value: string;
     onChange: (value: string) => void;
@@ -28,7 +29,7 @@ function BalanceInput(
           fontWeight: "semibold",
         })}
       >
-        Token Balance
+        {props.description ?? "Token Balance"}
       </span>
       <span
         className={css({

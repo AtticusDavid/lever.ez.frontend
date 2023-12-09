@@ -71,6 +71,7 @@ export type AaveFloatStatus = Record<
     totalSupplyUSD: number;
     totalBorrow: number;
     totalBorrowUSD: number;
+    availableLiquidity: number;
     availableLiquidityUSD: number;
     utilizationRate: number;
     liquidationPenalty: number;
@@ -491,6 +492,9 @@ export async function GET(request: Request) {
       (aaveFloatStatus[name]["totalBorrow"] as number) *
       (aaveFloatStatus[name]["price"] as number);
 
+    aaveFloatStatus[name]["availableLiquidity"] =
+      parseFloat(element["availableLiquidity"]) /
+      parseFloat((getBigInt(10) ** getBigInt(element["decimals"])).toString());
     aaveFloatStatus[name]["availableLiquidityUSD"] =
       (parseFloat(element["availableLiquidity"]) /
         parseFloat(

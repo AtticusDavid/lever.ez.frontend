@@ -1,15 +1,91 @@
 import React from "react";
 import { css } from "../../../../../../../styled-system/css";
 import { hstack } from "../../../../../../../styled-system/patterns";
+import { LendingStatusResponse } from "@/app/api/lending-status/route";
+import { TokenKey } from "../../assets";
+import { getFloatValueDivDecimals } from "@/hardhat/utils";
+import { prettify } from "@/utils";
 
 export type BorrowProps = {
-  APR: string;
-  governanceAPR: string;
+  netAPR: string;
+  availableLiquidity: string;
+  utilizationRate: string;
   supplyAmount: string;
+  maxBorrowableAmount: string;
   borrowAmount: string;
   borrowAPR: string;
   rewardAPR: string;
+  currentLTV: number;
+  maxLTV: number;
+  afterLTV: number;
 };
+
+export function getBorrowProps({
+  data,
+  borrowAmountInput,
+  tokenName: token,
+}: {
+  borrowAmountInput: number;
+  data: LendingStatusResponse;
+  tokenName: TokenKey;
+}): BorrowProps {
+  const { status, balances, incentiveStatus } = data;
+
+  const aToken = `a${token}` as const;
+  const vToken = `v${token}` as const;
+
+  const supplyAmount = getFloatValueDivDecimals(
+    balances[aToken]["balance"],
+    balances[aToken]["decimals"]
+  );
+  const borrowAmount = getFloatValueDivDecimals(
+    balances[vToken]["balance"],
+    balances[vToken]["decimals"]
+  );
+
+  let supplyRewardAPR = 0;
+  let borrowRewardAPR = 0;
+  incentiveStatus[token]["rewards"].forEach((reward) => {
+    if (reward.token !== "AAVE") {
+      return;
+    }
+
+    const rewardAPR = getFloatValueDivDecimals(reward.APR, "6");
+
+    if (reward.isAToken) {
+      supplyRewardAPR += rewardAPR;
+    } else {
+      borrowRewardAPR += rewardAPR;
+    }
+  });
+
+  const borrowProps: BorrowProps = {
+    netAPR:
+      prettify(
+        (borrowRewardAPR - status[token]["variableBorrowAPR"]).toString()
+      ) + "%",
+    availableLiquidity: prettify(
+      status[token]["availableLiquidity"].toString()
+    ),
+    utilizationRate:
+      prettify(status[token]["utilizationRate"].toString()) + "%",
+    supplyAmount: prettify(supplyAmount.toString()) + " " + token,
+    borrowAmount: prettify(borrowAmount.toString()) + " " + token,
+    borrowAPR: prettify((-status[token]["variableBorrowAPR"]).toString()) + "%",
+    rewardAPR: prettify(borrowRewardAPR.toString()) + "%",
+    maxBorrowableAmount: status[token]["availableBorrowAmount"].toString(),
+    currentLTV: status["user"]["currentLTV"] * 100,
+    maxLTV: status[token]["maxLTV"],
+    afterLTV: status["user"]["totalCollateralUSD"]
+      ? ((status["user"]["totalDebtUSD"] +
+          borrowAmountInput * status[token]["price"]) /
+          status["user"]["totalCollateralUSD"]) *
+        100
+      : 0,
+  };
+
+  return borrowProps;
+}
 
 function Borrow(props: BorrowProps) {
   const data = [
@@ -37,18 +113,23 @@ function Borrow(props: BorrowProps) {
       </span>
       <div
         className={hstack({
+          flexWrap: "wrap",
           justifyContent: "space-between",
           padding: "35px 0",
         })}
       >
         {[
           {
-            label: "AVR",
-            value: props.APR,
+            label: "Net APR",
+            value: props.netAPR,
           },
           {
-            label: "Governance APR",
-            value: props.governanceAPR,
+            label: "Available Liquidity",
+            value: props.availableLiquidity,
+          },
+          {
+            label: "Utilization Rate",
+            value: props.utilizationRate,
           },
         ].map((item) => {
           return (
@@ -56,6 +137,7 @@ function Borrow(props: BorrowProps) {
               key={item.label}
               className={hstack({
                 justifyContent: "space-between",
+                maxWidth: "50%",
               })}
             >
               <span>{item.label}</span>
