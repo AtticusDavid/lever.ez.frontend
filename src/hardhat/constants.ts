@@ -9,11 +9,13 @@ export type RewardTokens = {
   token: string;
   tokenPrice: string;
   tokenPriceDecimals: string;
+  isAToken: boolean;
   APR: string;
 };
 export type APR = {
   rewards: RewardTokens[];
-  totalAPR: string;
+  aTotalAPR: string;
+  vTotalAPR: string;
 };
 export const SECONDS_PER_YEAR = 31536000;
 

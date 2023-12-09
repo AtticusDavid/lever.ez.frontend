@@ -9,8 +9,7 @@ import PositionCard from "./PositionCard";
 import { hstack, vstack } from "../../../../../../styled-system/patterns";
 import UserIndicator from "./UserIndicator";
 import CloseModal from "./CloseModal";
-import { useQuery } from "wagmi";
-import { LendingStatusResponse } from "@/app/api/lending-status/route";
+import useLendingStatus from "@/hooks/useLendingStatus";
 
 const paramsSchema = object({
   asset: string()
@@ -21,21 +20,17 @@ const paramsSchema = object({
 export default function DefiAssets() {
   const params = useParams();
 
-  const { data } = useQuery(["lending-status"], () =>
-    fetch("/api/lending-status").then(
-      (r) => r.json() as Promise<LendingStatusResponse>
-    )
-  );
+  const { data } = useLendingStatus();
 
   console.log({ data });
   paramsSchema.validateSync(params);
 
-  const supplied = data ? data.user.totalCollateralUSD : 0;
-  const borrowed = data ? data.user.totalDebtUSD : 0;
+  const supplied = data ? data.status.user.totalCollateralUSD : 0;
+  const borrowed = data ? data.status.user.totalDebtUSD : 0;
   const netWorth = supplied - borrowed;
 
   const currentLTV = data ? (supplied ? borrowed / supplied : 0) : 0;
-  const maxLTV = data ? data.user.ltv : 0;
+  const maxLTV = data ? data.status.user.ltv : 0;
 
   return (
     <div
@@ -89,7 +84,7 @@ export default function DefiAssets() {
         >
           {data
             ? tokenWhitelist
-                .filter((x) => x in data)
+                .filter((x) => x in data.status)
                 .map((itemKey) => {
                   return (
                     <PositionCard

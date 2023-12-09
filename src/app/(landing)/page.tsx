@@ -103,6 +103,12 @@ export default function Home() {
               return <CarouselItem key={index}></CarouselItem>;
             })}
           </div>
+          <div
+            className={css({
+              backgroundColor: "#202020",
+              marginTop: "80px",
+            })}
+          ></div>
         </div>
       </div>
     </main>
