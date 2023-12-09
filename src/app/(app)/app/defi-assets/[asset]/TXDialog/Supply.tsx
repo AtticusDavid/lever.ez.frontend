@@ -69,22 +69,25 @@ export function getSupplyProps({
     0.001
   );
 
-  const { flashloanAmount } = calculateFlashloanLeverageBaseAmount(
-    inputAmount,
-    supplyAmount,
-    supplyAmount === 0 ? 0 : borrowAmount / supplyAmount,
-    targetLTV,
-    1,
-    1,
-    0.001
-  );
+  const { flashloanAmount } =
+    leverage === 1
+      ? { flashloanAmount: 0 }
+      : calculateFlashloanLeverageBaseAmount(
+          inputAmount,
+          supplyAmount,
+          supplyAmount === 0 ? 0 : borrowAmount / supplyAmount,
+          targetLTV,
+          1,
+          1,
+          0.001
+        );
 
   console.log({ targetLTV, flashloanAmount });
 
   const revenueEstimation =
     (inputAmount + supplyAmount + flashloanAmount) *
-      (status[tokenName]["supplyAPR"] as number) -
-    (targetLTV * (status[tokenName]["variableBorrowAPR"] as number)) / 100;
+      status[tokenName]["supplyAPR"] -
+    (targetLTV * status[tokenName]["variableBorrowAPR"]) / 100;
   let compoundGovernanceToken = 0;
 
   incentiveStatus[tokenName]["rewards"].forEach((reward) => {
