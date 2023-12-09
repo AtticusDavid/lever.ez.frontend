@@ -9,6 +9,19 @@ import {
 } from "@/hardhat/utils";
 import { TokenKey } from "../../assets";
 import { prettify } from "@/utils";
+import {
+  AAVE_V3_A_TOKENS,
+  AAVE_V3_DEBT_TOKENS,
+  MINTABLE_ERC20_TOKENS,
+} from "@/hardhat/constants";
+import { Network } from "@/hooks/useLendingStatus";
+import {
+  encodeAbiParameters,
+  encodeFunctionData,
+  parseAbiParameters,
+  parseUnits,
+} from "viem";
+import { leverageABI } from "@/generated";
 
 type SupplyProps = {
   revenueEstimation: string;
@@ -24,13 +37,16 @@ export function getSupplyProps({
   data,
   leverage,
   tokenName,
+  network,
 }: {
   inputAmount: number;
   leverage: number;
   data: LendingStatusResponse;
   tokenName: TokenKey;
-}): SupplyProps {
+  network: Network;
+}): SupplyProps & { data: `0x${string}` } {
   const { balances, status, incentiveStatus } = data;
+
   const aToken = `a${tokenName}` as const;
   const vToken = `v${tokenName}` as const;
 
@@ -56,12 +72,14 @@ export function getSupplyProps({
   const { flashloanAmount } = calculateFlashloanLeverageBaseAmount(
     inputAmount,
     supplyAmount,
-    borrowAmount / supplyAmount,
+    supplyAmount === 0 ? 0 : borrowAmount / supplyAmount,
     targetLTV,
     1,
     1,
     0.001
   );
+
+  console.log({ targetLTV, flashloanAmount });
 
   const revenueEstimation =
     (inputAmount + supplyAmount + flashloanAmount) *
@@ -94,6 +112,39 @@ export function getSupplyProps({
         rewardTokenPrice;
     }
   });
+  console.log({ flashloanAmount });
+
+  const abiParams = encodeAbiParameters(
+    parseAbiParameters(["address", "address", "uint256", "bytes"].join(", ")),
+    [
+      MINTABLE_ERC20_TOKENS[network][tokenName],
+      AAVE_V3_DEBT_TOKENS[network][tokenName],
+      parseUnits(
+        flashloanAmount.toString(),
+        parseInt(balances[tokenName].decimals)
+      ),
+      "0x",
+    ]
+  );
+
+  const params = {
+    asset: MINTABLE_ERC20_TOKENS[network][tokenName] as `0x${string}`,
+    counterAsset: AAVE_V3_A_TOKENS[network][tokenName] as `0x${string}`,
+    amount: parseUnits(
+      (inputAmount ?? 0).toString(),
+      Number(balances[tokenName].decimals)
+    ),
+    flags: leverage > 1 ? 3 : 1,
+    data: leverage === 1 ? "0x" : abiParams,
+  };
+
+  console.log({ params, abiParams });
+
+  const txData = encodeFunctionData({
+    functionName: "supply",
+    abi: leverageABI,
+    args: [params],
+  });
 
   return {
     revenueEstimation: prettify(revenueEstimation.toString()) + " " + tokenName,
@@ -104,6 +155,7 @@ export function getSupplyProps({
     supplyAPR: prettify(status[tokenName]["supplyAPR"].toString()) + "%",
     borrowAPR:
       prettify(status[tokenName]["variableBorrowAPR"].toString()) + "%",
+    data: txData,
   };
 }
 

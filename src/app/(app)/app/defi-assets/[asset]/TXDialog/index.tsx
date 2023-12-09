@@ -1,4 +1,5 @@
 "use client";
+import ReactLoading from "react-loading";
 import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { css } from "../../../../../../../styled-system/css";
@@ -16,9 +17,30 @@ import Borrow, { getBorrowProps } from "./Borrow";
 import Withdraw, { getWithdrawProps } from "./Withdraw";
 import Close, { getCloseProps } from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
-import useLendingStatus from "@/hooks/useLendingStatus";
-import { formatUnits } from "viem";
+import useLendingStatus, {
+  Network,
+  mapChainName,
+} from "@/hooks/useLendingStatus";
+import { formatUnits, maxUint256, parseAbi } from "viem";
 import { prettify } from "@/utils";
+import {
+  erc20ABI,
+  readContract,
+  sendTransaction,
+  waitForTransaction,
+  writeContract,
+} from "@wagmi/core";
+import { useAccount, useMutation, useNetwork, useQuery } from "wagmi";
+import {
+  AAVE_V3_DEBT_TOKENS,
+  MINTABLE_ERC20_TOKENS,
+  leveragerAddress,
+} from "@/hardhat/constants";
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -33,9 +55,76 @@ const spinnerSmallText = css({
   color: "#BEC3AF",
 });
 
+function useAllowance({
+  chainAddress,
+  address,
+}: {
+  chainAddress: `0x${string}`;
+  address?: `0x${string}`;
+}) {
+  const { chain } = useNetwork();
+  const network = mapChainName(chain?.name);
+
+  return useQuery(
+    ["allowance", address],
+    () => {
+      return readContract({
+        abi: erc20ABI,
+        address: chainAddress,
+        functionName: "allowance",
+        args: [
+          address as `0x${string}`,
+          leveragerAddress[network as Network] as `0x${string}`,
+        ],
+      });
+    },
+    {
+      enabled: address && Boolean(network),
+    }
+  );
+}
 function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, _setIndex] = useState(0);
+
+  const { chain } = useNetwork();
+  const { address } = useAccount();
+
+  const { mutate: supply, isLoading: supplyIsLoading } = useMutation({
+    mutationFn: ({
+      txData,
+      network,
+    }: {
+      txData: `0x${string}`;
+      network: Network;
+    }) => {
+      return sendTransaction({
+        data: txData,
+        to: leveragerAddress[network],
+      }).then((res) => {
+        return waitForTransaction({
+          hash: res.hash,
+        });
+      });
+    },
+  });
+
+  const network = mapChainName(chain?.name);
+
+  const { data: allowanceData } = useAllowance({
+    address,
+    chainAddress: MINTABLE_ERC20_TOKENS[network as Network][tokenName],
+  });
+
+  const { data: debtAllowanceData } = useAllowance({
+    address,
+    chainAddress: AAVE_V3_DEBT_TOKENS[network as Network][
+      tokenName
+    ] as `0x${string}`,
+  });
+
+  const needApprove = allowanceData === 0n || debtAllowanceData === 0n;
+
   const [inputAmount, setInputAmount] = useState("");
   const setIndex = (value: number) => {
     // reset inputamount;
@@ -45,7 +134,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [ratio, setRatio] = useState(0);
   const leverage = ratio * 3 + 1;
 
-  const { data } = useLendingStatus();
+  const { data, refetch } = useLendingStatus();
 
   const balance = data
     ? `${formatUnits(
@@ -72,12 +161,14 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   function renderBody() {
     return match(options[index])
       .with("Supply", () => {
-        if (!data) return <div></div>;
+        if (!data || !network || !address) return <div></div>;
+
         const supplyProps = getSupplyProps({
           inputAmount: parseInt(inputAmount || "0"),
           leverage,
           data,
           tokenName,
+          network,
         });
 
         return (
@@ -106,6 +197,77 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               ></Spinner>
             </BalanceInput>
             <Supply {...supplyProps}></Supply>
+            <button
+              className={center({
+                marginTop: "20px",
+                borderRadius: "10px",
+                backgroundColor: "#B8FF04",
+                height: "62px",
+                width: "100%",
+                fontSize: "28px",
+                fontWeight: "bold",
+                color: "black",
+              })}
+              aria-label="Close"
+              onClick={async () => {
+                try {
+                  const leverager = leveragerAddress[network] as `0x${string}`;
+                  let count = 0;
+
+                  console.log({ allowanceData, debtAllowanceData });
+                  if (allowanceData === 0n) {
+                    const result = await writeContract({
+                      abi: erc20ABI,
+                      functionName: "approve",
+                      args: [leverager, maxUint256],
+                      address: MINTABLE_ERC20_TOKENS[network][tokenName],
+                    });
+
+                    count++;
+                    console.log({ result });
+                  }
+                  if (debtAllowanceData === 0n) {
+                    const result = await writeContract({
+                      abi: parseAbi([
+                        "function approveDelegation(address delegatee, uint256 amount)",
+                      ]),
+                      functionName: "approveDelegation",
+                      args: [leverager, maxUint256],
+                      address: AAVE_V3_DEBT_TOKENS[network][
+                        tokenName
+                      ] as `0x${string}`,
+                    });
+
+                    count++;
+                    console.log({ result });
+                  }
+                  if (count > 1) {
+                    refetch();
+                    return;
+                  }
+
+                  supply({
+                    txData: supplyProps.data,
+                    network,
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            >
+              {supplyIsLoading ? (
+                <ReactLoading
+                  type="spin"
+                  height={40}
+                  width={40}
+                  color="black"
+                ></ReactLoading>
+              ) : needApprove ? (
+                "Approve"
+              ) : (
+                "Supply"
+              )}
+            </button>
           </>
         );
       })
@@ -404,23 +566,6 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           </div>
 
           {renderBody()}
-          <Dialog.Close asChild>
-            <button
-              className={center({
-                marginTop: "20px",
-                borderRadius: "10px",
-                backgroundColor: "#B8FF04",
-                height: "62px",
-                width: "100%",
-                fontSize: "28px",
-                fontWeight: "bold",
-                color: "black",
-              })}
-              aria-label="Close"
-            >
-              {options[index]}
-            </button>
-          </Dialog.Close>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

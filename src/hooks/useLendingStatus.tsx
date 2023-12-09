@@ -2,7 +2,9 @@ import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import { lendingStatusRequestSchema } from "@/utils";
 import { useAccount, useNetwork, useQuery } from "wagmi";
 
-function mapChainName(name: undefined | string) {
+export type Network = "ethereumSepolia" | "avalancheFuji" | "polygonMumbai";
+
+export function mapChainName(name: undefined | string): Network | undefined {
   if (name === "Sepolia") return "ethereumSepolia" as const;
   if (name === "Avalanche Fuji") return "avalancheFuji" as const;
   if (name === "Polygon Mumbai") return "polygonMumbai" as const;

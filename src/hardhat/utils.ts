@@ -337,7 +337,7 @@ export function calculateFlashloanLeverageToTargetLTV(
     priceBorrow *
     priceSupplyExchangeRate;
 
-  return { targetLTV: numerator / denominator };
+  return { targetLTV: denominator === 0 ? 0 : numerator / denominator };
 }
 
 export function calculateFlashloanDeleverageBaseAmount(
