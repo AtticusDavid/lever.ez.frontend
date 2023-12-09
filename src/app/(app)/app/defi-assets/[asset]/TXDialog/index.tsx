@@ -14,7 +14,7 @@ import BalanceInput from "./BalanceInput";
 import Supply, { getSupplyProps } from "./Supply";
 import Borrow, { getBorrowProps } from "./Borrow";
 import Withdraw, { getWithdrawProps } from "./Withdraw";
-import Close from "./Close";
+import Close, { getCloseProps } from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
 import useLendingStatus from "@/hooks/useLendingStatus";
 import { formatUnits } from "viem";
@@ -228,6 +228,13 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         );
       })
       .with("Close", () => {
+        if (!data) return;
+
+        const closeProps = getCloseProps({
+          data,
+          token: tokenName,
+        });
+
         return (
           <>
             <BalanceInput {...balanceInputProps}>
@@ -243,14 +250,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               ></Spinner>
             </BalanceInput>
 
-            <Close
-              currentLTV="72 %"
-              targetLTV="50 %"
-              supplyAmount="2k DAI + 0.28ETH"
-              borrowAmount="5k DAI"
-              borrowAPR="-8.3"
-              rewardAPR="123 %"
-            ></Close>
+            <Close {...closeProps}></Close>
           </>
         );
       })
