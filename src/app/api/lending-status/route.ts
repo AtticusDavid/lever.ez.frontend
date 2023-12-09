@@ -29,7 +29,9 @@ import {
   getProviderRpcUrl,
   rayMul,
 } from "@/hardhat/utils";
+import { lendingStatusRequestSchema } from "@/utils";
 import { ethers, Wallet, getBigInt } from "ethers";
+import { InferType, object, string } from "yup";
 
 export const dynamic = "force-dynamic"; // defaults to force-static
 
@@ -50,10 +52,11 @@ export type Balances = Record<
 
 export type AaveIncentiveStatus = Record<BalanceToken, APR>;
 
+export type LendingStatusRequest = InferType<typeof lendingStatusRequestSchema>;
+
 export type LendingStatusResponse = {
   status: AaveFloatStatus;
   incentiveStatus: AaveIncentiveStatus;
-  supplyProps: SupplyProps;
   balances: Balances;
 };
 
@@ -87,46 +90,21 @@ export type AaveFloatStatus = Record<
   };
 };
 
-type SupplyProps = {
-  revenueEstimation: string;
-  compoundGovernanceToken: string;
-  supplyAmount: string;
-  borrowAmount: string;
-  supplyAPR: string;
-  borrowAPR: string;
-};
-
-type WithdrawProps = {
-  amountSupplied: string;
-  amountBorrowed: string;
-  supplyAPR: string;
-  rewardAPR: string;
-  borrowUsedRatio: number; // value between 0~1
-  borrowAmount: string;
-};
-
-type CloseProps = {
-  currentLTV: string;
-  targetLTV: string;
-  supplyAmount: string;
-  borrowAmount: string;
-  borrowAPR: string;
-  rewardAPR: string;
-};
-
-type BorrowProps = {
-  APR: string;
-  governanceAPR: string;
-  supplyAmount: string;
-  borrowAmount: string;
-  borrowAPR: string;
-  rewardAPR: string;
-};
-
 export async function GET(request: Request) {
-  const blockchain = "ethereumSepolia" as const;
+  const { searchParams } = new URL(request.url);
+  const address = searchParams.get("address");
+  const network = searchParams.get("network");
+  const body = {
+    address,
+    network,
+  };
 
-  const rpcProviderUrl = getProviderRpcUrl(blockchain);
+  if (!lendingStatusRequestSchema.isValidSync(body))
+    throw new Error("invalid query params");
+
+  const params = lendingStatusRequestSchema.validateSync(body);
+
+  const rpcProviderUrl = getProviderRpcUrl(params.network);
   const provider = new ethers.JsonRpcProvider(rpcProviderUrl);
   const privateKey = getPrivateKey();
   const wallet = new Wallet(privateKey);
@@ -138,17 +116,17 @@ export async function GET(request: Request) {
   );
 
   const aaveV3 = IPool__factory.connect(
-    LENDING_POOLS[blockchain].AaveV3LendingPool,
+    LENDING_POOLS[params.network].AaveV3LendingPool,
     signer
   );
   const aaveV3PoolDataProvider = IUiPoolDataProviderV3__factory.connect(
-    LENDING_POOLS[blockchain].AaveV3UiPoolDataProvider,
+    LENDING_POOLS[params.network].AaveV3UiPoolDataProvider,
     signer
   );
 
   const aaveV3IncentiveDataProvider =
     IUiIncentiveDataProviderV3__factory.connect(
-      LENDING_POOLS[blockchain].AaveV3UiIncentiveDataProvider,
+      LENDING_POOLS[params.network].AaveV3UiIncentiveDataProvider,
       signer
     );
 
@@ -160,21 +138,18 @@ export async function GET(request: Request) {
     "function getTotalSupplyLastUpdated() view returns(uint40)",
     "function scaledTotalSupply() view returns(uint256)",
   ]);
-  const aaveV2PoolDataProvider = IPool__factory.createInterface();
-  const compoundV2 = CToken__factory.createInterface();
 
   const aaveV3Data = await aaveV3PoolDataProvider.getReservesData(
-    LENDING_POOLS[blockchain].AaveV3AddressProvider
+    LENDING_POOLS[params.network].AaveV3AddressProvider
   );
 
   const aaveV3IncentiveData =
     await aaveV3IncentiveDataProvider.getReservesIncentivesData(
-      LENDING_POOLS[blockchain].AaveV3AddressProvider
+      LENDING_POOLS[params.network].AaveV3AddressProvider
     );
 
   const aaveV3Status: Record<string, Record<string, string>> = {};
   const aaveV3InterestCalls: Multicall3.Call3Struct[] = [];
-  const aaveV3IncentiveCalls: Multicall3.Call3Struct[] = [];
 
   const TOKEN_ADDRESS_TO_NAME: Record<string, string> = {};
 
@@ -362,8 +337,6 @@ export async function GET(request: Request) {
       interestRate.currentVariableBorrowRate.toString();
   });
 
-  console.log(aaveV3Status);
-
   const aaveV3IncentiveStatus: Record<string, APR> = {};
 
   aaveV3IncentiveData.forEach((element) => {
@@ -424,9 +397,8 @@ export async function GET(request: Request) {
     });
     aaveV3IncentiveStatus[name]["vTotalAPR"] = vTotalAPR.toString();
   });
-  console.log(aaveV3IncentiveStatus);
 
-  const accountData = await aaveV3.getUserAccountData(wallet.address);
+  const accountData = await aaveV3.getUserAccountData(params.address);
   const aaveV3AccountNetStatus: Record<string, string> = {};
   aaveV3AccountNetStatus["totalCollateralBase"] =
     accountData.totalCollateralBase.toString();
@@ -440,8 +412,6 @@ export async function GET(request: Request) {
   aaveV3AccountNetStatus["healthFactor"] = accountData.healthFactor.toString();
   aaveV3AccountNetStatus["baseDecimals"] =
     aaveV3Data[1].networkBaseTokenPriceDecimals.toString();
-
-  console.log(aaveV3AccountNetStatus);
 
   const aaveFloatStatus: Record<string, Record<string, string | number>> = {};
   for (const name of Object.keys(aaveV3Status)) {
@@ -536,9 +506,7 @@ export async function GET(request: Request) {
       aaveFloatStatus["user"]["totalCollateralUSD"]) *
     100;
 
-  console.log(aaveFloatStatus);
-
-  const balances = await walletStatus(signer, blockchain);
+  const balances = await walletStatus(signer, params.address, params.network);
 
   let leverage = 2;
   let inputAmount = 0;
@@ -575,14 +543,7 @@ export async function GET(request: Request) {
     1,
     0.001
   );
-  console.log(targetLTV);
-  console.log(flashloanAmount);
-  console.log(supplyAmount);
 
-  const revenueEstimation =
-    (inputAmount + supplyAmount + flashloanAmount) *
-      (aaveFloatStatus[token]["supplyAPR"] as number) -
-    (targetLTV * (aaveFloatStatus[token]["variableBorrowAPR"] as number)) / 100;
   let compoundGovernanceToken = 0;
   aaveV3IncentiveStatus[token]["rewards"].forEach((reward) => {
     if (reward.token !== "AAVE") {
@@ -610,21 +571,9 @@ export async function GET(request: Request) {
     }
   });
 
-  const supplyProps: SupplyProps = {
-    revenueEstimation: revenueEstimation.toString(),
-    compoundGovernanceToken: compoundGovernanceToken.toString(),
-    supplyAmount: supplyAmount.toString(),
-    borrowAmount: borrowAmount.toString(),
-    supplyAPR: aaveFloatStatus[token]["supplyAPR"].toString(),
-    borrowAPR: aaveFloatStatus[token]["variableBorrowAPR"].toString(),
-  };
-
-  console.log(supplyProps);
-
   return Response.json({
     status: aaveFloatStatus,
     incentiveStatus: aaveV3IncentiveStatus,
-    supplyProps,
     balances,
   });
 }
@@ -634,8 +583,10 @@ function getFloatValueDivDecimals(value: string, decimals: string) {
     parseFloat((getBigInt(10) ** getBigInt(decimals)).toString())
   );
 }
+
 async function walletStatus(
   signer: Wallet,
+  address: string,
   blockchain: "ethereumSepolia" | "avalancheFuji" | "polygonMumbai"
 ) {
   const multicall: Multicall3 = Multicall3__factory.connect(
@@ -661,14 +612,14 @@ async function walletStatus(
     calls.push({
       target: MINTABLE_ERC20_TOKENS[blockchain][token],
       allowFailure: true,
-      callData: mockERC20.encodeFunctionData("balanceOf", [signer.address]),
+      callData: mockERC20.encodeFunctionData("balanceOf", [address]),
     });
 
     calls.push({
       target: MINTABLE_ERC20_TOKENS[blockchain][token],
       allowFailure: true,
       callData: mockERC20.encodeFunctionData("allowance", [
-        signer.address,
+        address,
         leveragerAddress[blockchain],
       ]),
     });
@@ -685,13 +636,13 @@ async function walletStatus(
     calls.push({
       target: AAVE_V3_A_TOKENS[blockchain][token],
       allowFailure: true,
-      callData: mockERC20.encodeFunctionData("balanceOf", [signer.address]),
+      callData: mockERC20.encodeFunctionData("balanceOf", [address]),
     });
     calls.push({
       target: AAVE_V3_A_TOKENS[blockchain][token],
       allowFailure: true,
       callData: mockERC20.encodeFunctionData("allowance", [
-        signer.address,
+        address,
         leveragerAddress[blockchain],
       ]),
     });
@@ -708,13 +659,13 @@ async function walletStatus(
     calls.push({
       target: AAVE_V3_DEBT_TOKENS[blockchain][token],
       allowFailure: true,
-      callData: mockERC20.encodeFunctionData("balanceOf", [signer.address]),
+      callData: mockERC20.encodeFunctionData("balanceOf", [address]),
     });
     calls.push({
       target: AAVE_V3_DEBT_TOKENS[blockchain][token],
       allowFailure: true,
       callData: mockERC20.encodeFunctionData("borrowAllowance", [
-        signer.address,
+        address,
         leveragerAddress[blockchain],
       ]),
     });
@@ -782,8 +733,9 @@ async function walletStatus(
 
   const provider = signer.provider;
   if (!provider) throw new Error("Provider not found");
+
   walletStatus["NATIVE"]["balance"] = (
-    await provider.getBalance(signer.address)
+    await provider.getBalance(address)
   ).toString();
 
   return walletStatus;

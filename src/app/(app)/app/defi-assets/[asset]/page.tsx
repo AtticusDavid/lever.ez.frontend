@@ -25,6 +25,7 @@ export default function DefiAssets() {
   const { data } = useLendingStatus();
 
   console.log({ data });
+
   paramsSchema.validateSync(params);
 
   const supplied = data ? data.status.user.totalCollateralUSD : 0;
@@ -111,8 +112,6 @@ export default function DefiAssets() {
                       BigInt(info.price),
                     parseInt(debtBalance.decimals)
                   );
-
-                  console.log({ info, itemKey, supply, borrow });
 
                   return (
                     <PositionCard

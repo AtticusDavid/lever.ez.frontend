@@ -1,3 +1,5 @@
+import { object, string } from "yup";
+
 export function prettify(value: string, n?: number) {
   const [front, back] = value.split(".");
   if (back) {
@@ -5,3 +7,10 @@ export function prettify(value: string, n?: number) {
   }
   return parseInt(front).toLocaleString();
 }
+
+export const lendingStatusRequestSchema = object({
+  address: string().required(),
+  network: string()
+    .required()
+    .oneOf(["ethereumSepolia", "polygonMumbai", "avalancheFuji"] as const),
+});

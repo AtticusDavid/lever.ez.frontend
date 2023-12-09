@@ -1,11 +1,36 @@
 import { LendingStatusResponse } from "@/app/api/lending-status/route";
-import { useQuery } from "wagmi";
+import { lendingStatusRequestSchema } from "@/utils";
+import { useAccount, useNetwork, useQuery } from "wagmi";
+
+function mapChainName(name: undefined | string) {
+  if (name === "Sepolia") return "ethereumSepolia" as const;
+  if (name === "Avalanche Fuji") return "avalancheFuji" as const;
+  if (name === "Polygon Mumbai") return "polygonMumbai" as const;
+  return undefined;
+}
 
 function useLendingStatus() {
-  return useQuery(["lending-status"], () =>
-    fetch("/api/lending-status").then(
-      (r) => r.json() as Promise<LendingStatusResponse>
-    )
+  const { chain } = useNetwork();
+  const { address } = useAccount();
+
+  const body = {
+    address: address,
+    network: mapChainName(chain?.name),
+  };
+
+  const isOk = lendingStatusRequestSchema.isValidSync(body);
+
+  console.log({ body, isOk });
+
+  return useQuery(
+    ["lending-status", body.address, body.network],
+    () =>
+      fetch(
+        `/api/lending-status?address=${body.address}&network=${body.network}`
+      ).then((r) => r.json() as Promise<LendingStatusResponse>),
+    {
+      enabled: isOk,
+    }
   );
 }
 

@@ -28,7 +28,7 @@ import { publicProvider } from "wagmi/providers/public";
 enableMapSet();
 
 const { chains, publicClient } = configureChains(
-  [mainnet, base, scroll, sepolia, polygonMumbai, avalancheFuji],
+  [sepolia, polygonMumbai, avalancheFuji],
   [publicProvider()]
 );
 

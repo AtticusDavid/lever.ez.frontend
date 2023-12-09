@@ -9,7 +9,6 @@ import {
 } from "@/hardhat/utils";
 import { TokenKey } from "../../assets";
 import { prettify } from "@/utils";
-import { token } from "@/hardhat/typechain-types/@openzeppelin/contracts";
 
 type SupplyProps = {
   revenueEstimation: string;
