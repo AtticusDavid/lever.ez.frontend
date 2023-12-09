@@ -13,9 +13,10 @@ export default function DashBoard() {
   const dashboardAssetRenderer = (asset: (typeof assets)[number]) => {
     return (
       <DashBoardAssetStatus
-        onClick={() =>
-          router.push(`/app/defi-assets/${asset.name.toLowerCase()}`)
-        }
+        onClick={() => {
+          if (!asset.isActive) return;
+          router.push(`/app/defi-assets/${asset.name.toLowerCase()}`);
+        }}
         key={asset.name}
         assetName={asset.name}
         isActive={asset.isActive}
