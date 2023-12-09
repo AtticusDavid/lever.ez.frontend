@@ -15,6 +15,7 @@ function Spinner({
   color,
   ratio,
   title,
+  markers,
   description,
   minimumRatio,
   onChange,
@@ -26,6 +27,11 @@ function Spinner({
     middle?: React.ReactNode;
     end?: React.ReactNode;
   };
+  markers?: {
+    id: string;
+    color?: string;
+    ratio: number;
+  }[];
   ratio: number;
   minimumRatio?: number;
   onChange?: (value: number) => void;
@@ -151,6 +157,40 @@ function Spinner({
               </div>
             </div>
           </div>
+          {}
+          {markers?.map((marker) => {
+            return (
+              <div
+                key={marker.id}
+                style={
+                  {
+                    "--marker-color": marker.color ?? "rgba(0,0,0,0.7)",
+                    "--minimum-ratio": `${Math.floor(marker.ratio * 100)}%`,
+                  } as React.CSSProperties
+                }
+                className={css({
+                  pointerEvents: "none",
+                  position: "absolute",
+                  left: "0px",
+                  top: "0px",
+                  width: "calc(100% - 20px)",
+                  height: "20px",
+                  padding: "0 10px",
+                })}
+              >
+                <div
+                  className={circle({
+                    top: "0px",
+                    left: "calc(var(--minimum-ratio))",
+                    position: "absolute",
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: "var(--marker-color)",
+                  })}
+                ></div>
+              </div>
+            );
+          })}
           {minimumRatio !== undefined ? (
             <div
               style={

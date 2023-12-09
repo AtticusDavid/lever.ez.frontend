@@ -64,9 +64,8 @@ export function getBorrowProps({
       prettify(
         (borrowRewardAPR - status[token]["variableBorrowAPR"]).toString()
       ) + "%",
-    availableLiquidity: prettify(
-      status[token]["availableLiquidity"].toString()
-    ),
+    availableLiquidity:
+      prettify(status[token]["availableLiquidity"].toString()) + " " + token,
     utilizationRate:
       prettify(status[token]["utilizationRate"].toString()) + "%",
     supplyAmount: prettify(supplyAmount.toString()) + " " + token,
@@ -137,7 +136,7 @@ function Borrow(props: BorrowProps) {
               key={item.label}
               className={hstack({
                 justifyContent: "space-between",
-                maxWidth: "50%",
+                minWidth: "35%",
               })}
             >
               <span>{item.label}</span>

@@ -175,6 +175,17 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                     </span>
                   ),
                 }}
+                markers={[
+                  {
+                    id: "current",
+                    ratio: borrowProps.currentLTV / 100,
+                  },
+                  {
+                    id: "max",
+                    ratio: borrowProps.maxLTV / 100,
+                    color: "rgba(255,0,0,0.5)",
+                  },
+                ]}
               ></Spinner>
             </BalanceInput>
             <Borrow {...borrowProps}></Borrow>
