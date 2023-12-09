@@ -11,6 +11,7 @@ import UserIndicator from "./UserIndicator";
 import CloseModal from "./CloseModal";
 import useLendingStatus from "@/hooks/useLendingStatus";
 import { formatUnits } from "viem";
+import { prettify } from "@/utils";
 
 const paramsSchema = object({
   asset: string()
@@ -118,9 +119,9 @@ export default function DefiAssets() {
                       key={itemKey}
                       tokenName={itemKey}
                       iconSrc={tokenIconMap[itemKey]}
-                      netWorth={netWorth.slice(0, 4)}
-                      supply={supply.slice(0, 4)}
-                      borrow={borrow.slice(0, 4)}
+                      netWorth={prettify(netWorth)}
+                      supply={prettify(supply)}
+                      borrow={prettify(borrow)}
                       badgeColor="#D70027"
                       badgeText="Dangerous"
                     ></PositionCard>

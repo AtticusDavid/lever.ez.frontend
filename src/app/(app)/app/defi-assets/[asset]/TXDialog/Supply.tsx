@@ -13,6 +13,7 @@ import {
   calculateFlashloanLeverageBaseAmount,
 } from "@/hardhat/utils";
 import { TokenKey } from "../../assets";
+import { prettify } from "@/utils";
 
 type SupplyProps = {
   revenueEstimation: string;
@@ -172,7 +173,7 @@ function Supply(props: SupplyProps) {
                   color: "white",
                 })}
               >
-                {item.value}
+                {prettify(item.value)}
               </span>
             </div>
           );
@@ -197,7 +198,7 @@ function Supply(props: SupplyProps) {
                     >
                       {data[x + y].label}
                     </td>
-                    <td>{data[x + y].value}</td>
+                    <td>{prettify(data[x + y].value)}</td>
                   </React.Fragment>
                 );
               })}

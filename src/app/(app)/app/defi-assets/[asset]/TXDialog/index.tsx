@@ -18,6 +18,7 @@ import Close from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
 import useLendingStatus from "@/hooks/useLendingStatus";
 import { formatUnits } from "viem";
+import { prettify } from "@/utils";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -49,7 +50,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
     : `0`;
 
   const balanceInputProps = {
-    balance: `${balance} ${tokenName}`,
+    balance: `${prettify(balance)} ${tokenName}`,
     value: inputAmount,
     onChange: setInputAmount,
     onClickMax: () => {
