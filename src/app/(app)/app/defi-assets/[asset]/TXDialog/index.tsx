@@ -61,7 +61,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
         return (
           <>
-            <BalanceInput>
+            <BalanceInput value={inputAmount} onChange={setInputAmount}>
               <Spinner
                 color="#D70027"
                 ratio={ratio}
@@ -99,7 +99,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Borrow", () => {
         return (
           <>
-            <BalanceInput>
+            <BalanceInput value={inputAmount} onChange={setInputAmount}>
               <Spinner
                 color="#C08FFF"
                 ratio={ratio}
@@ -143,7 +143,10 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Withdraw", () => {
         return (
           <>
-            <BalanceInput></BalanceInput>
+            <BalanceInput
+              value={inputAmount}
+              onChange={setInputAmount}
+            ></BalanceInput>
             <Withdraw
               amountSupplied="0 ETH"
               amountBorrowed="0 ETH"
@@ -158,7 +161,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Close", () => {
         return (
           <>
-            <BalanceInput>
+            <BalanceInput value={inputAmount} onChange={setInputAmount}>
               <Spinner
                 color="#0ED883"
                 ratio={ratio}

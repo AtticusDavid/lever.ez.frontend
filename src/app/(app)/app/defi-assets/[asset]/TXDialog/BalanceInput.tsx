@@ -6,7 +6,9 @@ import {
 } from "../../../../../../../styled-system/patterns";
 import { css } from "../../../../../../../styled-system/css";
 
-function BalanceInput(props: PropsWithChildren<{}>) {
+function BalanceInput(
+  props: PropsWithChildren<{ value: string; onChange: (value: string) => void }>
+) {
   return (
     <div
       className={vstack({
@@ -40,6 +42,11 @@ function BalanceInput(props: PropsWithChildren<{}>) {
         })}
       >
         <input
+          type="number"
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(e.target.value);
+          }}
           className={css({
             paddingLeft: "7px",
             flexGrow: "1",
