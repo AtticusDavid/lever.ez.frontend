@@ -1,34 +1,83 @@
+import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import { css } from "../../../../../../../styled-system/css";
 import { hstack, vstack } from "../../../../../../../styled-system/patterns";
 import Spinner from "../Spinner";
+import { TokenKey } from "../../assets";
+import { getFloatValueDivDecimals } from "@/hardhat/utils";
+import { prettify } from "@/utils";
 
 type WithdrawProps = {
-  amountSupplied: string;
-  amountBorrowed: string;
+  supplyAmount: string;
+  utilizationRate: number;
+  availableLiquidity: number;
   supplyAPR: string;
   rewardAPR: string;
-  borrowUsedRatio: number;
   borrowAmount: string;
+  withdrawableAmount: string;
 };
+
+export function getWithdrawProps({
+  data,
+  tokenName: token,
+}: {
+  data: LendingStatusResponse;
+  tokenName: TokenKey;
+}): WithdrawProps {
+  const { status, balances, incentiveStatus } = data;
+
+  const aToken = `a${token}` as const;
+  const vToken = `v${token}` as const;
+
+  const supplyAmount = getFloatValueDivDecimals(
+    balances[aToken]["balance"],
+    balances[aToken]["decimals"]
+  );
+  const borrowAmount = getFloatValueDivDecimals(
+    balances[vToken]["balance"],
+    balances[vToken]["decimals"]
+  );
+
+  let supplyRewardAPR = 0;
+  incentiveStatus[token]["rewards"].forEach((reward) => {
+    if (reward.token !== "AAVE") {
+      return;
+    }
+
+    const rewardAPR = getFloatValueDivDecimals(reward.APR, "6");
+
+    if (reward.isAToken) {
+      supplyRewardAPR += rewardAPR;
+    }
+  });
+
+  const withdrawableAmount = Math.min(
+    (status["user"]["totalCollateralUSD"] -
+      status["user"]["totalDebtUSD"] / status["user"]["ltv"]) /
+      status[token]["price"],
+    supplyAmount
+  );
+
+  const withdrawProps: WithdrawProps = {
+    supplyAmount: prettify(supplyAmount.toString()) + " " + token,
+    borrowAmount: prettify(borrowAmount.toString()) + " " + token,
+    utilizationRate: status[token]["utilizationRate"],
+    availableLiquidity: status[token].availableLiquidityUSD,
+    supplyAPR: prettify(status[token]["supplyAPR"].toString()) + "%",
+    rewardAPR: prettify(supplyRewardAPR.toString()) + "%",
+    withdrawableAmount: withdrawableAmount.toString(),
+  };
+  return withdrawProps;
+}
 
 function Withdraw(props: WithdrawProps) {
   const data = [
-    { label: "Amount Supplied", value: props.amountSupplied },
-    { label: "Amount Borrowed", value: props.amountBorrowed },
+    { label: "Amount Supplied", value: props.supplyAmount },
+    { label: "Amount Borrowed", value: props.borrowAmount },
     { label: "Supply APR", value: props.supplyAPR },
     { label: "Reward APR", value: props.rewardAPR },
   ];
   return (
     <div>
-      <div
-        className={css({
-          color: "#BEC3AF",
-          fontSize: "18px",
-          fontWeight: "semibold",
-        })}
-      >
-        Withdrawable Amount
-      </div>
       <div
         className={css({
           color: "#53544E",
@@ -63,7 +112,7 @@ function Withdraw(props: WithdrawProps) {
       </div>
       <Spinner
         color="#C08FFF"
-        ratio={props.borrowUsedRatio}
+        ratio={props.utilizationRate / 100}
         description={{
           start: (
             <span>
@@ -74,7 +123,7 @@ function Withdraw(props: WithdrawProps) {
                   fontWeight: "semibold",
                 })}
               >
-                {Math.floor(props.borrowUsedRatio * 100) / 100}%
+                {Math.floor(props.utilizationRate * 100) / 100}%
               </span>
               <span
                 className={css({
@@ -93,7 +142,7 @@ function Withdraw(props: WithdrawProps) {
                 color: "white",
               })}
             >
-              {props.borrowAmount}
+              ${prettify(props.availableLiquidity.toString())}
             </span>
           ),
         }}

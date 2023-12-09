@@ -13,7 +13,7 @@ import Spinner from "../Spinner";
 import BalanceInput from "./BalanceInput";
 import Supply, { getSupplyProps } from "./Supply";
 import Borrow, { getBorrowProps } from "./Borrow";
-import Withdraw from "./Withdraw";
+import Withdraw, { getWithdrawProps } from "./Withdraw";
 import Close from "./Close";
 import { TokenKey, tokenIconMap } from "../../assets";
 import useLendingStatus from "@/hooks/useLendingStatus";
@@ -193,17 +193,37 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         );
       })
       .with("Withdraw", () => {
+        if (!data) return;
+
+        const withdrawProps = getWithdrawProps({
+          data,
+          tokenName,
+        });
+
         return (
           <>
-            <BalanceInput {...balanceInputProps}></BalanceInput>
-            <Withdraw
-              amountSupplied="0 ETH"
-              amountBorrowed="0 ETH"
-              supplyAPR="1.64%"
-              rewardAPR="3.18% (1X)"
-              borrowUsedRatio={0.86452}
-              borrowAmount="$3,560.86"
-            ></Withdraw>
+            <BalanceInput
+              description="Max Borrowable Amount"
+              value={inputAmount}
+              balance={`${prettify(
+                withdrawProps.withdrawableAmount,
+                6
+              )} ${tokenName}`}
+              onChange={(value) => {
+                if (
+                  value &&
+                  parseInt(value) > parseInt(withdrawProps.withdrawableAmount)
+                ) {
+                  setInputAmount(withdrawProps.withdrawableAmount);
+                  return;
+                }
+                setInputAmount(value);
+              }}
+              onClickMax={() => {
+                setInputAmount(withdrawProps.withdrawableAmount);
+              }}
+            ></BalanceInput>
+            <Withdraw {...withdrawProps}></Withdraw>
           </>
         );
       })
