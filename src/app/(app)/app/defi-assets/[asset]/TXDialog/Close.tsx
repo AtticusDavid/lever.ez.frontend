@@ -55,7 +55,10 @@ export function getCloseProps({
 
   const closeProps: CloseProps = {
     currentLTV: prettify((assetCurrentLTV * 100).toString()) + "%",
-    targetLTV: "need to fill",
+    targetLTV:
+      supplyAmount === 0
+        ? "0%"
+        : Math.max((borrowAmount / supplyAmount) * 100) / 100 + "%",
     supplyAmount: prettify(supplyAmount.toString()) + " " + token,
     borrowAmount: prettify(borrowAmount.toString()) + " " + token,
     borrowAPR:

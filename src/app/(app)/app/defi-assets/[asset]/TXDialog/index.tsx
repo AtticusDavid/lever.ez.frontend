@@ -35,8 +35,13 @@ const spinnerSmallText = css({
 
 function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [optionWidth, setOptionWidth] = useState(0);
-  const [index, setIndex] = useState(0);
+  const [index, _setIndex] = useState(0);
   const [inputAmount, setInputAmount] = useState("");
+  const setIndex = (value: number) => {
+    // reset inputamount;
+    setInputAmount("");
+    _setIndex(value);
+  };
   const [ratio, setRatio] = useState(0);
   const leverage = ratio * 3 + 1;
 
@@ -112,7 +117,6 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           borrowAmountInput: parseInt(inputAmount || "0"),
           tokenName,
         });
-        console.log({ borrowProps });
 
         return (
           <>
@@ -229,6 +233,8 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           token: tokenName,
         });
 
+        const deleverage = 1 - ratio;
+
         return (
           <>
             <BalanceInput {...balanceInputProps} placeHolder="Amount to Close">
@@ -239,6 +245,14 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 title="Flashlone Deleverage"
                 description={{
                   start: <span className={spinnerWhiteSemiBold}>1X</span>,
+                  middle: (
+                    <span>
+                      <span className={spinnerWhiteSemiBold}>
+                        ${Math.floor(deleverage * 100) / 100}X
+                      </span>
+                      <span className={spinnerSmallText}> | current</span>
+                    </span>
+                  ),
                   end: <span className={spinnerWhiteSemiBold}>0X</span>,
                 }}
               ></Spinner>
