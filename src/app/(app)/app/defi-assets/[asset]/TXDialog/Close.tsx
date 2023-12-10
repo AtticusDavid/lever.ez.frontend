@@ -12,6 +12,7 @@ import { leverageABI } from "@/generated";
 import {
   MINTABLE_ERC20_TOKENS,
   AAVE_V3_DEBT_TOKENS,
+  AAVE_V3_A_TOKENS,
 } from "@/hardhat/constants";
 import {
   encodeAbiParameters,
@@ -96,7 +97,7 @@ export function getCloseProps({
   console.log({ closeProps, targetLTV, threshold });
 
   const { flashloanAmount } =
-    targetLTV < threshold
+    targetLTV > threshold
       ? { flashloanAmount: 0 }
       : calculateFlashloanDeleverageBaseAmount(
           inputAmount,
@@ -132,7 +133,7 @@ export function getCloseProps({
   console.log({ token });
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
-    counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
+    counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
     amount: parseUnits(
       inputAmount.toString(),
       Number(balances[token].decimals)
