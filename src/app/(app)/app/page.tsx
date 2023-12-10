@@ -7,11 +7,22 @@ import assets from "./defi-assets/assets";
 import DashBoardAssetStatus from "./DashBoardAssetStatus";
 import { useRouter } from "next/navigation";
 import useLendingStatus from "@/hooks/useLendingStatus";
+import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
+import { center } from "../../../../styled-system/patterns";
+import ReactLoading from "react-loading";
 
 export default function DashBoard() {
   const router = useRouter();
 
-  const { data } = useLendingStatus();
+  const [rendered, setRendered] = useState(false);
+  const { address } = useAccount();
+
+  useEffect(() => {
+    setRendered(true);
+  }, []);
+
+  const { data, isLoading } = useLendingStatus();
   const supplied = data ? data.status.user.totalCollateralUSD : 0;
   const borrowed = data ? data.status.user.totalDebtUSD : 0;
   const netWorth = supplied - borrowed;
@@ -30,6 +41,36 @@ export default function DashBoard() {
       ></DashBoardAssetStatus>
     );
   };
+
+  if (isLoading || !rendered) {
+    return (
+      <div
+        className={center({
+          height: "300px",
+        })}
+      >
+        <ReactLoading
+          type="spin"
+          height={40}
+          width={40}
+          color="white"
+        ></ReactLoading>
+      </div>
+    );
+  }
+
+  if (!address) {
+    return (
+      <div
+        className={center({
+          height: "100px",
+          color: "white",
+        })}
+      >
+        Please connect your account.
+      </div>
+    );
+  }
 
   return (
     <div

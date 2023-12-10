@@ -1,7 +1,7 @@
 const assets = [
   {
-    name: "Aave-v2",
-    icon: "/assets/aave.png",
+    name: "Aave-v3",
+    icon: "/assets/aave-v3.png",
     isActive: true,
   },
   {
@@ -10,8 +10,8 @@ const assets = [
     isActive: false,
   },
   {
-    name: "Aave-v3",
-    icon: "/assets/aave-v3.png",
+    name: "Aave-v2",
+    icon: "/assets/aave.png",
     isActive: false,
   },
   {
