@@ -218,8 +218,6 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
       .with("Borrow", () => {
         if (!data || !network) return <div></div>;
 
-        const needApprove = debtAllowanceData === 0n;
-
         const borrowProps = getBorrowProps({
           data,
           borrowAmountInput: parseInt(inputAmount || "0"),
@@ -354,6 +352,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           data,
           tokenName,
           network,
+          inputAmount: parseFloat(inputAmount || "0"),
         });
 
         return (

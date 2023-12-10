@@ -83,7 +83,7 @@ export function getBorrowProps({
     borrowAPR: prettify((-status[token]["variableBorrowAPR"]).toString()) + "%",
     rewardAPR: prettify(borrowRewardAPR.toString()) + "%",
     maxBorrowableAmount: status[token]["availableBorrowAmount"].toString(),
-    currentLTV: status["user"]["currentLTV"] * 100,
+    currentLTV: status["user"]["currentLTV"],
     maxLTV: status[token]["maxLTV"],
     afterLTV: status["user"]["totalCollateralUSD"]
       ? ((status["user"]["totalDebtUSD"] +

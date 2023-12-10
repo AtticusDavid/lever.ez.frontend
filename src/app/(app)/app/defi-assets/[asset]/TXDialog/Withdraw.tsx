@@ -1,6 +1,6 @@
 import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import { css } from "../../../../../../../styled-system/css";
-import { hstack, vstack } from "../../../../../../../styled-system/patterns";
+import { hstack } from "../../../../../../../styled-system/patterns";
 import Spinner from "../Spinner";
 import { TokenKey } from "../../assets";
 import { getFloatValueDivDecimals } from "@/hardhat/utils";
@@ -8,7 +8,6 @@ import { prettify } from "@/utils";
 import { AAVE_V3_A_TOKENS, MINTABLE_ERC20_TOKENS } from "@/hardhat/constants";
 import { encodeFunctionData, parseUnits } from "viem";
 import { Network } from "@/hooks/useLendingStatus";
-import { ILeverager } from "@/hardhat/typechain-types";
 import { leverageABI } from "@/generated";
 
 type WithdrawProps = {
@@ -25,10 +24,12 @@ export function getWithdrawProps({
   data,
   tokenName: token,
   network,
+  inputAmount,
 }: {
   data: LendingStatusResponse;
   tokenName: TokenKey;
   network: Network;
+  inputAmount: number;
 }): WithdrawProps & { data: `0x${string}` } {
   const { status, balances, incentiveStatus } = data;
 
@@ -78,7 +79,7 @@ export function getWithdrawProps({
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
     counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
     amount: parseUnits(
-      (borrowAmount ?? 0).toString(),
+      inputAmount.toString(),
       Number(balances[token].decimals)
     ),
     flags: 1,

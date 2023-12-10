@@ -111,6 +111,8 @@ export function getCloseProps({
     ]
   );
 
+  console.log({ flashloanAmount, abiParams, inputAmount });
+
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
     counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
