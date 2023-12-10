@@ -1,11 +1,8 @@
-import { leveragerAddress } from "@/hardhat/constants";
-import { useToast } from "@chakra-ui/react";
 import { sendTransaction, waitForTransaction } from "@wagmi/core";
-import { Network } from "ethers";
+import toast from "react-hot-toast";
 import { useMutation } from "wagmi";
 
 function useTx() {
-  const toast = useToast();
   return useMutation({
     mutationFn: ({
       txData,
@@ -24,20 +21,14 @@ function useTx() {
       });
     },
     onError: () => {
-      toast({
-        status: "error",
-        title: "Transaction Failed",
-        description:
-          "Sorry, the transaction was unsuccessful.  Please try again.",
-      });
+      toast.error(
+        "Sorry, the transaction was unsuccessful.  Please try again."
+      );
     },
     onSuccess: () => {
-      toast({
-        status: "success",
-        title: "Transaction Successful",
-        description:
-          "Your transaction has been processed successfully. Please check your status on the dashboard.",
-      });
+      toast.success(
+        "Your transaction has been processed successfully. Please check your status on the dashboard."
+      );
     },
   });
 }

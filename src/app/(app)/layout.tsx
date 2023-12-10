@@ -1,25 +1,17 @@
 "use client";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import { ChakraProvider } from "@chakra-ui/react";
 
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import {
   configureChains,
   createConfig,
   createStorage,
-  sepolia,
   WagmiConfig,
 } from "wagmi";
-import {
-  mainnet,
-  polygonMumbai,
-  avalancheFuji,
-  base,
-  scroll,
-} from "wagmi/chains";
+import { Toaster } from "react-hot-toast";
+import { sepolia, polygonMumbai, avalancheFuji } from "wagmi/chains";
 import { enableMapSet } from "immer";
-import localFont from "next/font/local";
 // import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
@@ -57,10 +49,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ChakraProvider resetScope=".some-scope">
-      <WagmiConfig config={wagmiConfig}>
-        <RainbowKitProvider chains={chains}>{children}</RainbowKitProvider>
-      </WagmiConfig>
-    </ChakraProvider>
+    <WagmiConfig config={wagmiConfig}>
+      <Toaster position="top-right"></Toaster>
+      <RainbowKitProvider chains={chains}>{children}</RainbowKitProvider>
+    </WagmiConfig>
   );
 }
