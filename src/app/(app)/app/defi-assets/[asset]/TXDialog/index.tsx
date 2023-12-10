@@ -33,6 +33,7 @@ import {
 } from "@/hardhat/constants";
 import useTx from "@/hooks/useTx";
 import useAllowance from "@/hooks/useAllowance";
+import toast from "react-hot-toast";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -541,10 +542,11 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                     const result = await leverageApprove({
                       network,
                       token: tokenName,
-                      address: AAVE_V3_A_TOKENS[network][
+                      address: MINTABLE_ERC20_TOKENS[network][
                         tokenName
                       ] as `0x${string}`,
                     });
+
                     hashes.push(result.hash);
                   }
                   if (aAllowance === 0n) {
