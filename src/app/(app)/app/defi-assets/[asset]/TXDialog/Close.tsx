@@ -26,6 +26,7 @@ type CloseProps = {
   targetLTV: number;
   supplyAmount: string;
   borrowAmount: string;
+  maxBorrowableAmount: number;
   borrowAPR: string;
   rewardAPR: string;
 };
@@ -52,6 +53,7 @@ export function getCloseProps({
     balances[aToken]["balance"],
     balances[aToken]["decimals"]
   );
+
   const borrowAmount = getFloatValueDivDecimals(
     balances[vToken]["balance"],
     balances[vToken]["decimals"]
@@ -82,6 +84,7 @@ export function getCloseProps({
     borrowAPR:
       "-" + prettify(status[token]["variableBorrowAPR"].toString()) + "%",
     rewardAPR: prettify(borrowRewardAPR.toString()) + "%",
+    maxBorrowableAmount: status[token].availableBorrowAmount,
   };
 
   const { flashloanAmount } =
@@ -97,6 +100,11 @@ export function getCloseProps({
           0.001
         );
 
+  console.log({
+    flashloanAmount,
+    inputAmount,
+  });
+
   const abiParams = encodeAbiParameters(
     parseAbiParameters(["address", "address", "uint256", "bytes"].join(", ")),
     [
@@ -109,8 +117,6 @@ export function getCloseProps({
       "0x",
     ]
   );
-
-  console.log({ flashloanAmount, abiParams, inputAmount });
 
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,

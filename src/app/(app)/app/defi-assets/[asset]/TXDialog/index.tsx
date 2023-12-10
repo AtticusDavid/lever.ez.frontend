@@ -448,9 +448,31 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           inputAmount: parseFloat(inputAmount || "0"),
         });
 
+        const max = Math.min(
+          closeProps.maxBorrowableAmount,
+          parseFloat(balance)
+        );
+
         return (
           <>
-            <BalanceInput {...balanceInputProps} placeHolder="Amount to Close">
+            <BalanceInput
+              description="Token Balance / Borrowable Amount"
+              value={inputAmount}
+              balance={`${prettify(balance, 6)} ${tokenName} / ${
+                Math.floor(closeProps.maxBorrowableAmount * 100) / 100
+              } ${tokenName}`}
+              onChange={(value) => {
+                if (value && parseFloat(value) > max) {
+                  setInputAmount(max.toString());
+                  return;
+                }
+                setInputAmount(value);
+              }}
+              onClickMax={() => {
+                setInputAmount(max.toString());
+              }}
+              placeHolder="Amount to Close"
+            >
               <Spinner
                 color="#0ED883"
                 ratio={ratio}
