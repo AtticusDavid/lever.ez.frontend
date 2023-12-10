@@ -6,7 +6,11 @@ import { TokenKey } from "../../assets";
 import { getFloatValueDivDecimals } from "@/hardhat/utils";
 import { prettify } from "@/utils";
 import { encodeFunctionData, parseUnits } from "viem";
-import { AAVE_V3_A_TOKENS, MINTABLE_ERC20_TOKENS } from "@/hardhat/constants";
+import {
+  AAVE_V3_A_TOKENS,
+  AAVE_V3_DEBT_TOKENS,
+  MINTABLE_ERC20_TOKENS,
+} from "@/hardhat/constants";
 import { leverageABI } from "@/generated";
 import { Network } from "@/hooks/useLendingStatus";
 
@@ -91,7 +95,7 @@ export function getBorrowProps({
 
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
-    counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
+    counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
     amount: parseUnits(
       (borrowAmount ?? 0).toString(),
       Number(balances[token].decimals)

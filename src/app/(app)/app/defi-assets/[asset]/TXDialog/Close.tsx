@@ -113,7 +113,7 @@ export function getCloseProps({
 
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
-    counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
+    counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
     amount: parseUnits(
       (inputAmount ?? 0).toString(),
       Number(balances[token].decimals)
