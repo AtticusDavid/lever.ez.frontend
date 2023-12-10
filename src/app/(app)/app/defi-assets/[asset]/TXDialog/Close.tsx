@@ -129,6 +129,7 @@ export function getCloseProps({
     ]
   );
 
+  console.log({ token });
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
     counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
@@ -139,6 +140,8 @@ export function getCloseProps({
     flags: 1,
     data: Math.max(flashloanAmount, 0) === 0 ? "0x" : abiParams,
   };
+
+  console.log({ abiParams, params, network, token });
 
   const txData = encodeFunctionData({
     functionName: "close",
