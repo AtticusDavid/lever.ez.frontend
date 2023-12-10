@@ -4,7 +4,7 @@ import { hstack } from "../../../../../../../styled-system/patterns";
 import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import { TokenKey } from "../../assets";
 import {
-  calculateFlashloanLeverageBaseAmount,
+  calculateFlashloanDeleverageBaseAmount,
   getFloatValueDivDecimals,
 } from "@/hardhat/utils";
 import { prettify } from "@/utils";
@@ -88,7 +88,7 @@ export function getCloseProps({
   const { flashloanAmount } =
     targetLTV === 1
       ? { flashloanAmount: 0 }
-      : calculateFlashloanLeverageBaseAmount(
+      : calculateFlashloanDeleverageBaseAmount(
           inputAmount,
           supplyAmount,
           supplyAmount === 0 ? 0 : borrowAmount / supplyAmount,

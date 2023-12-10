@@ -1,4 +1,4 @@
-import React, { PointerEventHandler, useRef, useState } from "react";
+import React, { PointerEventHandler, useEffect, useRef, useState } from "react";
 import { css } from "../../../../../../styled-system/css";
 import {
   center,
@@ -39,6 +39,14 @@ function Spinner({
   const isReadOnly = !onChange;
   const isDragging = useRef(false);
 
+  useEffect(() => {
+    if (minimumRatio && onChange) {
+      if (minimumRatio > ratio) {
+        onChange(minimumRatio);
+      }
+    }
+  }, [minimumRatio, ratio, onChange]);
+
   const onDrag: PointerEventHandler<HTMLDivElement> = (event) => {
     if (isReadOnly) return;
     if (!isDragging.current) return;
@@ -57,10 +65,10 @@ function Spinner({
     if (!(body instanceof HTMLDivElement)) return;
     const length = body.offsetWidth;
     if (minimumRatio) {
-      onChange(Math.max(minimumRatio, x / length));
+      onChange(Math.min(Math.max(minimumRatio, x / length), 1));
       return;
     }
-    onChange(x / length);
+    onChange(Math.min(1, x / length));
   };
 
   return (

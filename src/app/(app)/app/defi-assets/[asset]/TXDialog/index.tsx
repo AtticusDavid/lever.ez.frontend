@@ -33,7 +33,6 @@ import {
 } from "@/hardhat/constants";
 import useTx from "@/hooks/useTx";
 import useAllowance from "@/hooks/useAllowance";
-import { leverageABI } from "@/generated";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -342,7 +341,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               ) : debtAllowanceData === 0n ? (
                 "Approve"
               ) : (
-                "Supply"
+                "Borrow"
               )}
             </button>
           </>
@@ -431,7 +430,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               ) : aAllowance === 0n ? (
                 "Approve"
               ) : (
-                "Supply"
+                "Withdraw"
               )}
             </button>
           </>
@@ -457,18 +456,46 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 color="#0ED883"
                 ratio={ratio}
                 onChange={setRatio}
+                minimumRatio={1 - closeProps.currentLTV}
+                markers={[
+                  {
+                    id: "currentLTV",
+                    ratio: 1 - closeProps.currentLTV,
+                  },
+                ]}
                 title="Flashlone Deleverage Target LTV"
                 description={{
-                  start: <span className={spinnerWhiteSemiBold}>1X</span>,
+                  start: <span className={spinnerWhiteSemiBold}>100%</span>,
                   middle: (
                     <span>
-                      <span className={spinnerWhiteSemiBold}>
-                        ${Math.floor(targetLTV * 100) / 100}X
+                      <span
+                        className={css({
+                          fontSize: "14px",
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          color: "white",
+                          borderRadius: "5px",
+                          padding: "2px 4px",
+                          fontWeight: "semibold",
+                          marginRight: "5px",
+                        })}
+                      >
+                        {Math.floor(closeProps.currentLTV * 100)}% | Current LTV
                       </span>
-                      <span className={spinnerSmallText}> | Target LTV</span>
+                      <span
+                        className={css({
+                          fontSize: "14px",
+                          backgroundColor: "var(--color)",
+                          color: "white",
+                          borderRadius: "5px",
+                          padding: "2px 4px",
+                          fontWeight: "semibold",
+                        })}
+                      >
+                        {Math.floor(closeProps.targetLTV * 100)}% | target LTV
+                      </span>
                     </span>
                   ),
-                  end: <span className={spinnerWhiteSemiBold}>0X</span>,
+                  end: <span className={spinnerWhiteSemiBold}>0%</span>,
                 }}
               ></Spinner>
             </BalanceInput>
@@ -537,7 +564,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               ) : aAllowance === 0n || allowanceData === 0n ? (
                 "Approve"
               ) : (
-                "Supply"
+                "Close"
               )}
             </button>
           </>
