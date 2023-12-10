@@ -14,7 +14,7 @@ function useAllowance({
   const network = mapChainName(chain?.name);
 
   return useQuery(
-    ["allowance", address],
+    ["allowance", address, chainAddress],
     () => {
       return readContract({
         abi: erc20ABI,

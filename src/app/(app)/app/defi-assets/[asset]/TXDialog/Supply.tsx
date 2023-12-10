@@ -194,7 +194,7 @@ function Supply(props: SupplyProps) {
       >
         {[
           {
-            label: "-",
+            label: "",
             value: props.revenueEstimation,
           },
           {
