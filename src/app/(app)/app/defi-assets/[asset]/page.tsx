@@ -95,7 +95,7 @@ export default function DefiAssets() {
         color: "#ffffff",
         text: "Normal",
         ratio: 0.5,
-        position: "justify-content",
+        position: "center",
         description: "Are you Degen?",
       };
     }
