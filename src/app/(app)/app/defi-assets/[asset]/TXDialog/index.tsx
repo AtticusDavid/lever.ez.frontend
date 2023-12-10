@@ -86,7 +86,6 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
   const [inputAmount, setInputAmount] = useState("");
   const setIndex = (value: number) => {
-    // reset inputamount;
     setInputAmount("");
     _setIndex(value);
   };
@@ -458,20 +457,18 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         });
 
         const max = Math.min(
-          parseFloat(closeProps.borrowAmount),
+          closeProps.borrowAmountNumber,
           parseFloat(balance)
         );
-
-        console.log({ targetLTV });
 
         return (
           <>
             <BalanceInput
               description="Token Balance / Borrow Amount"
               value={inputAmount}
-              balance={`${prettify(balance, 6)} ${tokenName} / ${prettify(
+              balance={`${prettify(balance, 6)} ${tokenName} / ${
                 closeProps.borrowAmount
-              )} ${tokenName}`}
+              }`}
               onChange={(value) => {
                 if (value && parseFloat(value) > max) {
                   setInputAmount(max.toString());

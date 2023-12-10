@@ -26,6 +26,7 @@ type CloseProps = {
   targetLTV: number;
   supplyAmount: string;
   borrowAmount: string;
+  borrowAmountNumber: number;
   maxBorrowableAmount: number;
   borrowAPR: string;
   rewardAPR: string;
@@ -79,16 +80,23 @@ export function getCloseProps({
   const closeProps: CloseProps = {
     currentLTV: assetCurrentLTV,
     targetLTV,
-    supplyAmount: prettify(supplyAmount.toString()) + " " + token,
-    borrowAmount: prettify(borrowAmount.toString()) + " " + token,
+    supplyAmount: `${prettify(supplyAmount.toString())} ${token}`,
+    borrowAmount: `${prettify(borrowAmount.toString())} ${token}`,
+    borrowAmountNumber: borrowAmount,
     borrowAPR:
       "-" + prettify(status[token]["variableBorrowAPR"].toString()) + "%",
     rewardAPR: prettify(borrowRewardAPR.toString()) + "%",
     maxBorrowableAmount: status[token].availableBorrowAmount,
   };
 
+  const threshold =
+    ((borrowAmount - inputAmount) * status[token]["price"]) /
+    status["user"]["totalCollateralUSD"];
+
+  console.log({ closeProps, targetLTV, threshold });
+
   const { flashloanAmount } =
-    targetLTV === 1
+    targetLTV < threshold
       ? { flashloanAmount: 0 }
       : calculateFlashloanDeleverageBaseAmount(
           inputAmount,

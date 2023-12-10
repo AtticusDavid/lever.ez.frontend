@@ -73,9 +73,12 @@ export default function DefiAssets() {
       data.balances[vToken]["decimals"]
     );
 
-    const currentLTV = supplyAmount === 0 ? 0 : borrowAmount / supplyAmount;
+    const currentLTV =
+      supplyAmount === 0 ? 0 : (borrowAmount / supplyAmount) * 100;
     const maxLTV = data.status[token].maxLTV;
     const liquidationThreshold = data.status[token].liquidationThreshold;
+
+    console.log({ currentLTV, maxLTV, liquidationThreshold, token });
 
     if (currentLTV >= 0 && maxLTV / 4 >= currentLTV) {
       return {
