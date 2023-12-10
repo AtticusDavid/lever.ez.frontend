@@ -121,10 +121,7 @@ export function getCloseProps({
     [
       MINTABLE_ERC20_TOKENS[network][token],
       AAVE_V3_DEBT_TOKENS[network][token],
-      parseUnits(
-        Math.max(flashloanAmount, 0).toString(),
-        parseInt(balances[token].decimals)
-      ),
+      Math.max(flashloanAmount * 10 ** parseInt(balances[token].decimals), 0),
       "0x",
     ]
   );

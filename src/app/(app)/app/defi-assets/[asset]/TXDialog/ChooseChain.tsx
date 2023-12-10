@@ -11,6 +11,8 @@ import { networks } from "@/hooks/useChainsClose";
 
 function ChooseChain() {
   const [indiceSet, updateIndiceSet] = useState(new Set<number>());
+
+  return null;
   return (
     <div
       className={css({

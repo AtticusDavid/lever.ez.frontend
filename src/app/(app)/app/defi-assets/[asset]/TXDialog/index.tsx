@@ -131,7 +131,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 color="#D70027"
                 ratio={ratio}
                 onChange={setRatio}
-                title="Flashlone Leverage"
+                title="Flashloan Leverage"
                 description={{
                   start: <span className={spinnerWhiteSemiBold}>1X</span>,
                   middle: (
@@ -487,7 +487,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                     ratio: 1 - closeProps.currentLTV,
                   },
                 ]}
-                title="Flashlone Deleverage Target LTV"
+                title="Flashloan Deleverage Target LTV"
                 description={{
                   start: <span className={spinnerWhiteSemiBold}>100%</span>,
                   middle: (
