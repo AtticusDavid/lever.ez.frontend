@@ -85,9 +85,10 @@ export function getSupplyProps({
   console.log({ targetLTV, flashloanAmount });
 
   const revenueEstimation =
-    (inputAmount + supplyAmount + flashloanAmount) *
-      status[tokenName]["supplyAPR"] -
-    (targetLTV * status[tokenName]["variableBorrowAPR"]) / 100;
+    ((inputAmount + supplyAmount + flashloanAmount) *
+      (status[tokenName]["supplyAPR"] -
+        targetLTV * status[tokenName]["variableBorrowAPR"])) /
+    100;
   let compoundGovernanceToken = 0;
 
   incentiveStatus[tokenName]["rewards"].forEach((reward) => {
@@ -122,10 +123,13 @@ export function getSupplyProps({
     [
       MINTABLE_ERC20_TOKENS[network][tokenName],
       AAVE_V3_DEBT_TOKENS[network][tokenName],
-      parseUnits(
-        flashloanAmount.toString(),
-        parseInt(balances[tokenName].decimals)
+      Math.max(
+        Math.floor(
+          flashloanAmount * 10 ** parseInt(balances[tokenName].decimals)
+        ),
+        0
       ),
+
       "0x",
     ]
   );
