@@ -9,10 +9,12 @@ function UserIndicator({
   description,
   color,
   ratio,
+  position,
 }: {
   description: string;
   color: string;
   ratio: number;
+  position: string;
 }) {
   return (
     <div
@@ -99,10 +101,15 @@ function UserIndicator({
         </div>
       </div>
       <div
+        style={
+          {
+            "--position": position,
+          } as React.CSSProperties
+        }
         className={css({
           color: "var(--color)",
           fontWeight: "semibold",
-          alignSelf: "flex-end",
+          alignSelf: "var(--position)",
         })}
       >
         {description}

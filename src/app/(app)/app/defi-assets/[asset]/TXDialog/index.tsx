@@ -34,6 +34,8 @@ import {
 import useTx from "@/hooks/useTx";
 import useAllowance from "@/hooks/useAllowance";
 import toast from "react-hot-toast";
+import useChainsClose from "@/hooks/useChainsClose";
+import ChooseChain from "./ChooseChain";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -54,6 +56,10 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
   const { chain } = useNetwork();
   const { address } = useAccount();
+
+  const { data: chainsData } = useChainsClose({ address, token: tokenName });
+
+  console.log({ chainsData });
 
   const { mutate: tx, isLoading: isTxLoading } = useTx();
 
@@ -100,7 +106,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
     balance: `${prettify(balance)} ${tokenName}`,
     value: inputAmount,
     onChange: (value: string) => {
-      if (value && parseInt(value) > parseInt(balance)) {
+      if (value && parseFloat(value) > parseFloat(balance)) {
         setInputAmount(balance);
         return;
       }
@@ -117,7 +123,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         if (!data || !network || !address) return <div></div>;
 
         const supplyProps = getSupplyProps({
-          inputAmount: parseInt(inputAmount || "0"),
+          inputAmount: parseFloat(inputAmount || "0"),
           leverage,
           data,
           tokenName,
@@ -221,7 +227,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
         const borrowProps = getBorrowProps({
           data,
-          borrowAmountInput: parseInt(inputAmount || "0"),
+          borrowAmountInput: parseFloat(inputAmount || "0"),
           tokenName,
           network,
         });
@@ -239,7 +245,8 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               onChange={(value) => {
                 if (
                   value &&
-                  parseInt(value) > parseInt(borrowProps.maxBorrowableAmount)
+                  parseFloat(value) >
+                    parseFloat(borrowProps.maxBorrowableAmount)
                 ) {
                   setInputAmount(borrowProps.maxBorrowableAmount);
                   return;
@@ -369,7 +376,8 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               onChange={(value) => {
                 if (
                   value &&
-                  parseInt(value) > parseInt(withdrawProps.withdrawableAmount)
+                  parseFloat(value) >
+                    parseFloat(withdrawProps.withdrawableAmount)
                 ) {
                   setInputAmount(withdrawProps.withdrawableAmount);
                   return;
@@ -454,6 +462,8 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           parseFloat(balance)
         );
 
+        console.log({ targetLTV });
+
         return (
           <>
             <BalanceInput
@@ -513,13 +523,14 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                           fontWeight: "semibold",
                         })}
                       >
-                        {Math.floor(closeProps.targetLTV * 100)}% | target LTV
+                        {Math.floor(closeProps.targetLTV * 100)}% | Target LTV
                       </span>
                     </span>
                   ),
                   end: <span className={spinnerWhiteSemiBold}>0%</span>,
                 }}
               ></Spinner>
+              {targetLTV === 0 ? <ChooseChain></ChooseChain> : null}
             </BalanceInput>
 
             <Close {...closeProps}></Close>
