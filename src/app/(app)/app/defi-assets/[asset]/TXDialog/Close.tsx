@@ -129,7 +129,7 @@ export function getCloseProps({
       Number(balances[token].decimals)
     ),
     flags: 1,
-    data: abiParams,
+    data: flashloanAmount === 0 ? "0x" : abiParams,
   };
 
   const txData = encodeFunctionData({
