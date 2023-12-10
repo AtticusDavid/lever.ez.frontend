@@ -103,6 +103,9 @@ export function getCloseProps({
   console.log({
     flashloanAmount,
     inputAmount,
+    supplyAmount,
+    targetLTV,
+    borrowAmount,
   });
 
   const abiParams = encodeAbiParameters(
@@ -111,7 +114,7 @@ export function getCloseProps({
       MINTABLE_ERC20_TOKENS[network][token],
       AAVE_V3_DEBT_TOKENS[network][token],
       parseUnits(
-        flashloanAmount.toString(),
+        Math.max(flashloanAmount, 0).toString(),
         parseInt(balances[token].decimals)
       ),
       "0x",
