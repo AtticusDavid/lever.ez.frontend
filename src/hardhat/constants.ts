@@ -63,7 +63,7 @@ export const multicall3Address: string =
 export const leveragerAddress: AddressMap = {
   [`ethereumSepolia`]: `0x5e96230EB452667C44200F4b6e3D9F3FE962174c`,
   [`polygonMumbai`]: `0x0020eb0e3d5E938129201d2e146748691Ee3261B`,
-  [`avalancheFuji`]: `0x26d71fA254D8BB0092dA7F22e290F078c19f7A98`,
+  [`avalancheFuji`]: `0x5ccC154987a3c144F1F1fAD2F6Cf62ebAA716307`,
 };
 
 export const supportedNetworks = [
