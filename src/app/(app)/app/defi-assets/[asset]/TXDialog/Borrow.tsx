@@ -97,7 +97,7 @@ export function getBorrowProps({
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
     counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
     amount: parseUnits(
-      (borrowAmount ?? 0).toString(),
+      (borrowAmountInput ?? 0).toString(),
       Number(balances[token].decimals)
     ),
     flags: 5,
