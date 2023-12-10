@@ -84,6 +84,8 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
     ] as `0x${string}`,
   });
 
+  console.log({ debtAllowanceData, allowanceData, aAllowance });
+
   const [inputAmount, setInputAmount] = useState("");
   const setIndex = (value: number) => {
     setInputAmount("");
