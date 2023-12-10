@@ -86,7 +86,7 @@ export function getWithdrawProps({
   };
 
   const txData = encodeFunctionData({
-    functionName: "borrow",
+    functionName: "withdraw",
     abi: leverageABI,
     args: [params],
   });
