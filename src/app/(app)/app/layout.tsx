@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import NavigationBar from "./NavigationBar";
+import ReactLoading from "react-loading";
 
 export default function RootLayout(props: any) {
   const [isClientRendered, setClientRendered] = useState(false);
@@ -46,7 +47,9 @@ export default function RootLayout(props: any) {
             height={50}
           ></Image>
           <>
-            {isClientRendered && account.isConnected ? (
+            {!isClientRendered ? (
+              <div></div>
+            ) : account.isConnected ? (
               <ConnectButton></ConnectButton>
             ) : (
               <button

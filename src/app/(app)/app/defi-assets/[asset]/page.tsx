@@ -1,17 +1,24 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { object, string } from "yup";
 import assets, { tokenIconMap, tokenWhitelist } from "../assets";
 import DashBoardSection from "../../DashBoardSection";
+import ReactLoading from "react-loading";
 import { css } from "../../../../../../styled-system/css";
 import DashBoardOverviewStatus from "../../DashBoardOverviewStatus";
 import PositionCard from "./PositionCard";
-import { hstack, vstack } from "../../../../../../styled-system/patterns";
+import {
+  center,
+  hstack,
+  vstack,
+} from "../../../../../../styled-system/patterns";
 import UserIndicator from "./UserIndicator";
 import CloseModal from "./CloseModal";
 import useLendingStatus from "@/hooks/useLendingStatus";
 import { formatUnits } from "viem";
 import { prettify } from "@/utils";
+import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
 
 const paramsSchema = object({
   asset: string()
@@ -21,10 +28,10 @@ const paramsSchema = object({
 
 export default function DefiAssets() {
   const params = useParams();
+  const [rendered, setRendered] = useState(false);
 
-  const { data } = useLendingStatus();
-
-  console.log({ data });
+  const { data, isLoading } = useLendingStatus();
+  const { address } = useAccount();
 
   paramsSchema.validateSync(params);
 
@@ -34,6 +41,40 @@ export default function DefiAssets() {
 
   const currentLTV = data ? (supplied ? borrowed / supplied : 0) : 0;
   const maxLTV = data ? data.status.user.ltv : 0;
+
+  useEffect(() => {
+    setRendered(true);
+  }, []);
+
+  if (isLoading || !rendered) {
+    return (
+      <div
+        className={center({
+          height: "300px",
+        })}
+      >
+        <ReactLoading
+          type="spin"
+          height={40}
+          width={40}
+          color="white"
+        ></ReactLoading>
+      </div>
+    );
+  }
+
+  if (!address) {
+    return (
+      <div
+        className={center({
+          height: "100px",
+          color: "white",
+        })}
+      >
+        Please connect your account.
+      </div>
+    );
+  }
 
   return (
     <div

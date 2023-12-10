@@ -12,7 +12,6 @@ import { leverageABI } from "@/generated";
 import {
   MINTABLE_ERC20_TOKENS,
   AAVE_V3_DEBT_TOKENS,
-  AAVE_V3_A_TOKENS,
 } from "@/hardhat/constants";
 import {
   encodeAbiParameters,
@@ -117,7 +116,7 @@ export function getCloseProps({
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
     counterAsset: AAVE_V3_DEBT_TOKENS[network][token] as `0x${string}`,
     amount: parseUnits(
-      (inputAmount ?? 0).toString(),
+      inputAmount.toString(),
       Number(balances[token].decimals)
     ),
     flags: 1,

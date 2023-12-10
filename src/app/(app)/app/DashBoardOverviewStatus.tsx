@@ -20,7 +20,7 @@ function DashBoardOverviewStatus({
         boxSizing: "border-box",
         display: "flex",
         flexGrow: "1",
-        minWidth: "180px",
+        minWidth: "220px",
         justifyContent: "space-between",
         borderRadius: "10px",
         border: `1px solid var(--border-color)`,

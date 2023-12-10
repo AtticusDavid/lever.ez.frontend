@@ -21,10 +21,10 @@ import useLendingStatus, {
   Network,
   mapChainName,
 } from "@/hooks/useLendingStatus";
-import { formatUnits, maxUint256, parseAbi } from "viem";
+import { formatUnits } from "viem";
 import { leverageApprove, leverageApproveDelegation, prettify } from "@/utils";
-import { erc20ABI, waitForTransaction, writeContract } from "@wagmi/core";
-import { useAccount, useNetwork, useQuery } from "wagmi";
+import { waitForTransaction } from "@wagmi/core";
+import { useAccount, useNetwork } from "wagmi";
 import {
   AAVE_V3_A_TOKENS,
   AAVE_V3_DEBT_TOKENS,
@@ -154,7 +154,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 marginTop: "20px",
                 borderRadius: "10px",
                 backgroundColor: "#B8FF04",
-                height: "62px",
+                minHeight: "62px",
                 width: "100%",
                 fontSize: "28px",
                 fontWeight: "bold",
@@ -298,7 +298,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 marginTop: "20px",
                 borderRadius: "10px",
                 backgroundColor: "#B8FF04",
-                height: "62px",
+                minHeight: "62px",
                 width: "100%",
                 fontSize: "28px",
                 fontWeight: "bold",
@@ -386,7 +386,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 marginTop: "20px",
                 borderRadius: "10px",
                 backgroundColor: "#B8FF04",
-                height: "62px",
+                minHeight: "62px",
                 width: "100%",
                 fontSize: "28px",
                 fontWeight: "bold",
@@ -505,7 +505,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 marginTop: "20px",
                 borderRadius: "10px",
                 backgroundColor: "#B8FF04",
-                height: "62px",
+                minHeight: "62px",
                 width: "100%",
                 fontSize: "28px",
                 fontWeight: "bold",
