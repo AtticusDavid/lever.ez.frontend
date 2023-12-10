@@ -98,7 +98,7 @@ function Spinner({
           >
             {title}
           </span>
-          <div
+          {/* <div
             className={hstack({
               marginLeft: "10px",
               display: "inline-flex",
@@ -107,7 +107,7 @@ function Spinner({
           >
             <span>min</span>
             <span>max</span>
-          </div>
+          </div> */}
         </div>
       ) : null}
 
