@@ -36,6 +36,7 @@ import { InferType, object, string } from "yup";
 export const dynamic = "force-dynamic"; // defaults to force-static
 
 type BalanceToken = "DAI" | "USDC" | "USDT" | "WETH";
+
 export type Balances = Record<
   BalanceToken | `a${BalanceToken}` | `v${BalanceToken}`,
   {

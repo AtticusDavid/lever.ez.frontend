@@ -66,22 +66,15 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const network = mapChainName(chain?.name);
 
   const { data: allowanceData } = useAllowance({
-    address,
-    chainAddress: MINTABLE_ERC20_TOKENS[network as Network][tokenName],
+    token: tokenName,
   });
 
   const { data: aAllowance } = useAllowance({
-    address,
-    chainAddress: AAVE_V3_A_TOKENS[network as Network][
-      tokenName
-    ] as `0x${string}`,
+    token: `a${tokenName}`,
   });
 
   const { data: debtAllowanceData } = useAllowance({
-    address,
-    chainAddress: AAVE_V3_DEBT_TOKENS[network as Network][
-      tokenName
-    ] as `0x${string}`,
+    token: `v${tokenName}`,
   });
 
   console.log({ debtAllowanceData, allowanceData, aAllowance });
@@ -174,7 +167,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                   const hashes: `0x${string}`[] = [];
 
                   console.log({ allowanceData, debtAllowanceData });
-                  if (allowanceData === 0n) {
+                  if (allowanceData === "0") {
                     const result = await leverageApprove({
                       network,
                       token: tokenName,
@@ -182,7 +175,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                     });
                     hashes.push(result.hash);
                   }
-                  if (debtAllowanceData === 0n) {
+                  if (debtAllowanceData === "0") {
                     const result = await leverageApproveDelegation({
                       network,
                       token: tokenName,
@@ -214,7 +207,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                   width={40}
                   color="black"
                 ></ReactLoading>
-              ) : allowanceData === 0n || debtAllowanceData === 0n ? (
+              ) : allowanceData === "0" || debtAllowanceData === "0" ? (
                 "Approve"
               ) : (
                 "Supply"
@@ -316,7 +309,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               aria-label="Close"
               onClick={async () => {
                 try {
-                  if (debtAllowanceData === 0n) {
+                  if (debtAllowanceData === "0") {
                     const result = await leverageApproveDelegation({
                       network,
                       token: tokenName,
@@ -345,7 +338,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                   width={40}
                   color="black"
                 ></ReactLoading>
-              ) : debtAllowanceData === 0n ? (
+              ) : debtAllowanceData === "0" ? (
                 "Approve"
               ) : (
                 "Borrow"
@@ -405,7 +398,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               aria-label="Close"
               onClick={async () => {
                 try {
-                  if (aAllowance === 0n) {
+                  if (aAllowance === "0") {
                     const result = await leverageApprove({
                       network,
                       token: tokenName,
@@ -436,7 +429,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                   width={40}
                   color="black"
                 ></ReactLoading>
-              ) : aAllowance === 0n ? (
+              ) : aAllowance === "0" ? (
                 "Approve"
               ) : (
                 "Withdraw"
@@ -548,7 +541,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               onClick={async () => {
                 try {
                   const hashes: `0x${string}`[] = [];
-                  if (allowanceData === 0n) {
+                  if (allowanceData === "0") {
                     const result = await leverageApprove({
                       network,
                       token: tokenName,
@@ -559,7 +552,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
 
                     hashes.push(result.hash);
                   }
-                  if (aAllowance === 0n) {
+                  if (aAllowance === "0") {
                     const result = await leverageApprove({
                       network,
                       token: tokenName,
@@ -594,7 +587,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                   width={40}
                   color="black"
                 ></ReactLoading>
-              ) : aAllowance === 0n || allowanceData === 0n ? (
+              ) : aAllowance === "0" || allowanceData === "0" ? (
                 "Approve"
               ) : (
                 "Close"
