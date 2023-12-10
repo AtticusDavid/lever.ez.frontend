@@ -1,8 +1,10 @@
 import { sendTransaction, waitForTransaction } from "@wagmi/core";
 import toast from "react-hot-toast";
 import { useMutation } from "wagmi";
+import useLendingStatus from "./useLendingStatus";
 
 function useTx() {
+  const { refetch } = useLendingStatus();
   return useMutation({
     mutationFn: ({
       txData,
@@ -29,6 +31,7 @@ function useTx() {
       toast.success(
         "Your transaction has been processed successfully. Please check your status on the dashboard."
       );
+      refetch();
     },
   });
 }
