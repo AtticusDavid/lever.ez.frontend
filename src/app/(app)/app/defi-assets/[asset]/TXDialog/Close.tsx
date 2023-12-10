@@ -13,6 +13,7 @@ import {
   MINTABLE_ERC20_TOKENS,
   AAVE_V3_DEBT_TOKENS,
   AAVE_V3_A_TOKENS,
+  routerConfig,
 } from "@/hardhat/constants";
 import {
   encodeAbiParameters,
@@ -21,6 +22,7 @@ import {
   encodeFunctionData,
 } from "viem";
 import { Network } from "@/hooks/useLendingStatus";
+import { ChainsCloseResponse } from "@/hooks/useChainsClose";
 
 type CloseProps = {
   currentLTV: number;
@@ -39,12 +41,18 @@ export function getCloseProps({
   inputAmount,
   network,
   targetLTV,
+  networkSet,
+  chainsData,
+  address,
 }: {
   inputAmount: number;
   data: LendingStatusResponse;
   targetLTV: number;
   token: TokenKey;
   network: Network;
+  networkSet: Set<Network>;
+  chainsData: ChainsCloseResponse;
+  address: `0x${string}`;
 }): CloseProps & { data: `0x${string}` } {
   const { status, balances, incentiveStatus } = data;
 
@@ -117,7 +125,44 @@ export function getCloseProps({
     borrowAmount,
   });
 
-  const abiParams = encodeAbiParameters(
+  const selectedNetworks = (chainsData ?? []).filter((item) =>
+    networkSet.has(item.networkName)
+  );
+
+  console.log({ selectedNetworks });
+
+  const chainLinkData = chainsData
+    ? encodeAbiParameters(parseAbiParameters("uint64[], bytes[]"), [
+        selectedNetworks.map((network) =>
+          BigInt(routerConfig[network.networkName].chainSelector)
+        ),
+        selectedNetworks.map((network) => {
+          return encodeAbiParameters(
+            parseAbiParameters("address, address, address, uint8, bytes"),
+            [
+              address,
+              MINTABLE_ERC20_TOKENS[network.networkName][token], // asset
+              AAVE_V3_A_TOKENS[network.networkName][token], // supply
+              1, // flag
+              encodeAbiParameters(
+                parseAbiParameters("address, address, uint256, bytes"),
+                [
+                  MINTABLE_ERC20_TOKENS[network.networkName][token], // asset
+                  AAVE_V3_DEBT_TOKENS[network.networkName][token], // debt
+                  BigInt(
+                    Math.max(network.flashloanAmount, 0) *
+                      10 ** network.decimals
+                  ),
+                  "0x",
+                ]
+              ),
+            ]
+          );
+        }),
+      ])
+    : "0x";
+
+  const closeFlashloanData = encodeAbiParameters(
     parseAbiParameters(["address", "address", "uint256", "bytes"].join(", ")),
     [
       MINTABLE_ERC20_TOKENS[network][token],
@@ -126,11 +171,18 @@ export function getCloseProps({
         Math.floor(flashloanAmount * 10 ** parseInt(balances[token].decimals)),
         0
       ),
-      "0x",
+      selectedNetworks.length > 0 ? chainLinkData : "0x",
     ]
   );
 
-  console.log({ token });
+  /**
+   * / inputParams.data = closeFlashloanData;
+      // closeFlashloanData = flashloan params + chainlink data
+      // chainlink data= abi.encode("uint64[]", "bytes[]" [destination Selectors, msgsData])
+      // msgs data = destination chain's closeFlashloanData
+   * 
+   */
+
   const params = {
     asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
     counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
@@ -139,10 +191,10 @@ export function getCloseProps({
       Number(balances[token].decimals)
     ),
     flags: 1,
-    data: Math.max(flashloanAmount, 0) === 0 ? "0x" : abiParams,
+    data: Math.max(flashloanAmount, 0) === 0 ? "0x" : closeFlashloanData,
   };
 
-  console.log({ abiParams, params, network, token });
+  console.log({ closeFlashloanData, params, network, token });
 
   const txData = encodeFunctionData({
     functionName: "close",

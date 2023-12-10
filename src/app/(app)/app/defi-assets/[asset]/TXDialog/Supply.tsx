@@ -82,7 +82,11 @@ export function getSupplyProps({
           0.001
         );
 
-  console.log({ targetLTV, flashloanAmount });
+  console.log({
+    targetLTV,
+    flashloanAmount,
+    borrowAPR: status[tokenName]["variableBorrowAPR"],
+  });
 
   const revenueEstimation =
     ((inputAmount + supplyAmount + flashloanAmount) *

@@ -27,13 +27,11 @@ import { waitForTransaction } from "@wagmi/core";
 import { useAccount, useNetwork } from "wagmi";
 import {
   AAVE_V3_A_TOKENS,
-  AAVE_V3_DEBT_TOKENS,
   MINTABLE_ERC20_TOKENS,
   leveragerAddress,
 } from "@/hardhat/constants";
 import useTx from "@/hooks/useTx";
 import useAllowance from "@/hooks/useAllowance";
-import toast from "react-hot-toast";
 import useChainsClose from "@/hooks/useChainsClose";
 import ChooseChain from "./ChooseChain";
 
@@ -57,13 +55,15 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const { chain } = useNetwork();
   const { address } = useAccount();
 
-  const { data: chainsData } = useChainsClose({ address, token: tokenName });
+  const { data: chainsData } = useChainsClose({ token: tokenName });
 
   console.log({ chainsData });
 
   const { mutate: tx, isLoading: isTxLoading } = useTx();
 
   const network = mapChainName(chain?.name);
+
+  const [networkSet, updateNetworkSet] = useState(new Set<Network>());
 
   const { data: allowanceData } = useAllowance({
     token: tokenName,
@@ -439,7 +439,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         );
       })
       .with("Close", () => {
-        if (!data || !network) return;
+        if (!data || !network || !address) return;
 
         const targetLTV = 1 - ratio;
 
@@ -449,6 +449,9 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
           network,
           targetLTV,
           inputAmount: parseFloat(inputAmount || "0"),
+          networkSet,
+          chainsData,
+          address,
         });
 
         const max = Math.min(
@@ -522,7 +525,13 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                   end: <span className={spinnerWhiteSemiBold}>0%</span>,
                 }}
               ></Spinner>
-              {targetLTV === 0 ? <ChooseChain></ChooseChain> : null}
+              {targetLTV === 0 ? (
+                <ChooseChain
+                  token={tokenName}
+                  networkSet={networkSet}
+                  updateNetworkSet={updateNetworkSet}
+                ></ChooseChain>
+              ) : null}
             </BalanceInput>
 
             <Close {...closeProps}></Close>

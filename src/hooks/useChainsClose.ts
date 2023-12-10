@@ -5,7 +5,7 @@ import {
   calculateFlashloanDeleverageBaseAmount,
   getFloatValueDivDecimals,
 } from "@/hardhat/utils";
-import { useQuery } from "wagmi";
+import { useAccount, useQuery } from "wagmi";
 
 export const networks: Network[] = [
   "ethereumSepolia",
@@ -13,13 +13,8 @@ export const networks: Network[] = [
   "polygonMumbai",
 ];
 
-function useChainsClose({
-  address,
-  token,
-}: {
-  address?: `0x${string}`;
-  token: TokenKey;
-}) {
+function useChainsClose({ token }: { token: TokenKey }) {
+  const { address } = useAccount();
   return useQuery(
     ["chains-close"],
     async () => {
@@ -31,7 +26,7 @@ function useChainsClose({
             ).then((r) => r.json() as Promise<LendingStatusResponse>);
           })
         )
-      ).map((result) => {
+      ).map((result, index) => {
         const aToken = `a${token}` as const;
         const vToken = `v${token}` as const;
 
@@ -60,11 +55,13 @@ function useChainsClose({
         );
 
         return {
+          networkName: networks[index],
           supplyAmount,
           borrowAmount,
           ltv,
           needApprove,
           flashloanAmount,
+          decimals: parseInt(result.balances[token].decimals),
         };
       });
       return results;
@@ -74,5 +71,7 @@ function useChainsClose({
     }
   );
 }
+
+export type ChainsCloseResponse = ReturnType<typeof useChainsClose>["data"];
 
 export default useChainsClose;
