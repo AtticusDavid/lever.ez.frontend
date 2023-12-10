@@ -17,7 +17,7 @@ export default function RootLayout(props: any) {
   const account = useAccount();
   const { openConnectModal } = useConnectModal();
   return (
-    <main
+    <div
       className={css({
         display: "flex",
         backgroundColor: "black",
@@ -73,6 +73,6 @@ export default function RootLayout(props: any) {
         </header>
         {props.children}
       </section>
-    </main>
+    </div>
   );
 }

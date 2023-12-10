@@ -5,6 +5,11 @@ import Spinner from "../Spinner";
 import { TokenKey } from "../../assets";
 import { getFloatValueDivDecimals } from "@/hardhat/utils";
 import { prettify } from "@/utils";
+import { AAVE_V3_A_TOKENS, MINTABLE_ERC20_TOKENS } from "@/hardhat/constants";
+import { encodeFunctionData, parseUnits } from "viem";
+import { Network } from "@/hooks/useLendingStatus";
+import { ILeverager } from "@/hardhat/typechain-types";
+import { leverageABI } from "@/generated";
 
 type WithdrawProps = {
   supplyAmount: string;
@@ -19,10 +24,12 @@ type WithdrawProps = {
 export function getWithdrawProps({
   data,
   tokenName: token,
+  network,
 }: {
   data: LendingStatusResponse;
   tokenName: TokenKey;
-}): WithdrawProps {
+  network: Network;
+}): WithdrawProps & { data: `0x${string}` } {
   const { status, balances, incentiveStatus } = data;
 
   const aToken = `a${token}` as const;
@@ -66,7 +73,28 @@ export function getWithdrawProps({
     rewardAPR: prettify(supplyRewardAPR.toString()) + "%",
     withdrawableAmount: withdrawableAmount.toString(),
   };
-  return withdrawProps;
+
+  const params = {
+    asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
+    counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
+    amount: parseUnits(
+      (borrowAmount ?? 0).toString(),
+      Number(balances[token].decimals)
+    ),
+    flags: 1,
+    data: "0x" as `0x${string}`,
+  };
+
+  const txData = encodeFunctionData({
+    functionName: "borrow",
+    abi: leverageABI,
+    args: [params],
+  });
+
+  return {
+    ...withdrawProps,
+    data: txData,
+  };
 }
 
 function Withdraw(props: WithdrawProps) {

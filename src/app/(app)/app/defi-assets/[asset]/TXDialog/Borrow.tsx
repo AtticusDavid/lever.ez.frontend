@@ -5,6 +5,10 @@ import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import { TokenKey } from "../../assets";
 import { getFloatValueDivDecimals } from "@/hardhat/utils";
 import { prettify } from "@/utils";
+import { encodeFunctionData, parseUnits } from "viem";
+import { AAVE_V3_A_TOKENS, MINTABLE_ERC20_TOKENS } from "@/hardhat/constants";
+import { leverageABI } from "@/generated";
+import { Network } from "@/hooks/useLendingStatus";
 
 export type BorrowProps = {
   netAPR: string;
@@ -24,11 +28,13 @@ export function getBorrowProps({
   data,
   borrowAmountInput,
   tokenName: token,
+  network,
 }: {
   borrowAmountInput: number;
   data: LendingStatusResponse;
   tokenName: TokenKey;
-}): BorrowProps {
+  network: Network;
+}): BorrowProps & { data: `0x${string}` } {
   const { status, balances, incentiveStatus } = data;
 
   const aToken = `a${token}` as const;
@@ -83,7 +89,27 @@ export function getBorrowProps({
       : 0,
   };
 
-  return borrowProps;
+  const params = {
+    asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
+    counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
+    amount: parseUnits(
+      (borrowAmount ?? 0).toString(),
+      Number(balances[token].decimals)
+    ),
+    flags: 5,
+    data: "0x" as `0x${string}`,
+  };
+
+  const txData = encodeFunctionData({
+    functionName: "borrow",
+    abi: leverageABI,
+    args: [params],
+  });
+
+  return {
+    ...borrowProps,
+    data: txData,
+  };
 }
 
 function Borrow(props: BorrowProps) {

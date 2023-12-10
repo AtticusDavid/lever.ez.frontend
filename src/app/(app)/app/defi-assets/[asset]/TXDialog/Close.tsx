@@ -3,12 +3,28 @@ import { css } from "../../../../../../../styled-system/css";
 import { hstack } from "../../../../../../../styled-system/patterns";
 import { LendingStatusResponse } from "@/app/api/lending-status/route";
 import { TokenKey } from "../../assets";
-import { getFloatValueDivDecimals } from "@/hardhat/utils";
+import {
+  calculateFlashloanLeverageBaseAmount,
+  getFloatValueDivDecimals,
+} from "@/hardhat/utils";
 import { prettify } from "@/utils";
+import { leverageABI } from "@/generated";
+import {
+  MINTABLE_ERC20_TOKENS,
+  AAVE_V3_DEBT_TOKENS,
+  AAVE_V3_A_TOKENS,
+} from "@/hardhat/constants";
+import {
+  encodeAbiParameters,
+  parseAbiParameters,
+  parseUnits,
+  encodeFunctionData,
+} from "viem";
+import { Network } from "@/hooks/useLendingStatus";
 
 type CloseProps = {
-  currentLTV: string;
-  targetLTV: string;
+  currentLTV: number;
+  targetLTV: number;
   supplyAmount: string;
   borrowAmount: string;
   borrowAPR: string;
@@ -18,10 +34,16 @@ type CloseProps = {
 export function getCloseProps({
   data,
   token,
+  inputAmount,
+  network,
+  targetLTV,
 }: {
+  inputAmount: number;
   data: LendingStatusResponse;
+  targetLTV: number;
   token: TokenKey;
-}) {
+  network: Network;
+}): CloseProps & { data: `0x${string}` } {
   const { status, balances, incentiveStatus } = data;
 
   const aToken = `a${token}` as const;
@@ -54,18 +76,62 @@ export function getCloseProps({
     status["user"]["totalCollateralUSD"];
 
   const closeProps: CloseProps = {
-    currentLTV: prettify((assetCurrentLTV * 100).toString()) + "%",
-    targetLTV:
-      supplyAmount === 0
-        ? "0%"
-        : Math.max((borrowAmount / supplyAmount) * 100) / 100 + "%",
+    currentLTV: assetCurrentLTV,
+    targetLTV,
     supplyAmount: prettify(supplyAmount.toString()) + " " + token,
     borrowAmount: prettify(borrowAmount.toString()) + " " + token,
     borrowAPR:
       "-" + prettify(status[token]["variableBorrowAPR"].toString()) + "%",
     rewardAPR: prettify(borrowRewardAPR.toString()) + "%",
   };
-  return closeProps;
+
+  const { flashloanAmount } =
+    targetLTV === 1
+      ? { flashloanAmount: 0 }
+      : calculateFlashloanLeverageBaseAmount(
+          inputAmount,
+          supplyAmount,
+          supplyAmount === 0 ? 0 : borrowAmount / supplyAmount,
+          targetLTV,
+          1,
+          1,
+          0.001
+        );
+
+  const abiParams = encodeAbiParameters(
+    parseAbiParameters(["address", "address", "uint256", "bytes"].join(", ")),
+    [
+      MINTABLE_ERC20_TOKENS[network][token],
+      AAVE_V3_DEBT_TOKENS[network][token],
+      parseUnits(
+        flashloanAmount.toString(),
+        parseInt(balances[token].decimals)
+      ),
+      "0x",
+    ]
+  );
+
+  const params = {
+    asset: MINTABLE_ERC20_TOKENS[network][token] as `0x${string}`,
+    counterAsset: AAVE_V3_A_TOKENS[network][token] as `0x${string}`,
+    amount: parseUnits(
+      (inputAmount ?? 0).toString(),
+      Number(balances[token].decimals)
+    ),
+    flags: 1,
+    data: abiParams,
+  };
+
+  const txData = encodeFunctionData({
+    functionName: "close",
+    abi: leverageABI,
+    args: [params],
+  });
+
+  return {
+    ...closeProps,
+    data: txData,
+  };
 }
 
 function Close(props: CloseProps) {
@@ -98,11 +164,11 @@ function Close(props: CloseProps) {
         {[
           {
             label: "Current LTV",
-            value: props.currentLTV,
+            value: Math.floor(props.currentLTV * 100) / 100 + "%",
           },
           {
             label: "Target LTV",
-            value: props.targetLTV,
+            value: Math.floor(props.targetLTV * 100) / 100 + "%",
           },
         ].map((item) => {
           return (

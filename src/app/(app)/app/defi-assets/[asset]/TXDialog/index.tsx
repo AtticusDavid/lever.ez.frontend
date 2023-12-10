@@ -22,25 +22,18 @@ import useLendingStatus, {
   mapChainName,
 } from "@/hooks/useLendingStatus";
 import { formatUnits, maxUint256, parseAbi } from "viem";
-import { prettify } from "@/utils";
+import { leverageApprove, leverageApproveDelegation, prettify } from "@/utils";
+import { erc20ABI, waitForTransaction, writeContract } from "@wagmi/core";
+import { useAccount, useNetwork, useQuery } from "wagmi";
 import {
-  erc20ABI,
-  readContract,
-  sendTransaction,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
-import { useAccount, useMutation, useNetwork, useQuery } from "wagmi";
-import {
+  AAVE_V3_A_TOKENS,
   AAVE_V3_DEBT_TOKENS,
   MINTABLE_ERC20_TOKENS,
   leveragerAddress,
 } from "@/hardhat/constants";
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
+import useTx from "@/hooks/useTx";
+import useAllowance from "@/hooks/useAllowance";
+import { leverageABI } from "@/generated";
 
 const options = ["Supply", "Withdraw", "Borrow", "Close"] as const;
 
@@ -55,34 +48,6 @@ const spinnerSmallText = css({
   color: "#BEC3AF",
 });
 
-function useAllowance({
-  chainAddress,
-  address,
-}: {
-  chainAddress: `0x${string}`;
-  address?: `0x${string}`;
-}) {
-  const { chain } = useNetwork();
-  const network = mapChainName(chain?.name);
-
-  return useQuery(
-    ["allowance", address],
-    () => {
-      return readContract({
-        abi: erc20ABI,
-        address: chainAddress,
-        functionName: "allowance",
-        args: [
-          address as `0x${string}`,
-          leveragerAddress[network as Network] as `0x${string}`,
-        ],
-      });
-    },
-    {
-      enabled: address && Boolean(network),
-    }
-  );
-}
 function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const [optionWidth, setOptionWidth] = useState(0);
   const [index, _setIndex] = useState(0);
@@ -90,24 +55,7 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
   const { chain } = useNetwork();
   const { address } = useAccount();
 
-  const { mutate: supply, isLoading: supplyIsLoading } = useMutation({
-    mutationFn: ({
-      txData,
-      network,
-    }: {
-      txData: `0x${string}`;
-      network: Network;
-    }) => {
-      return sendTransaction({
-        data: txData,
-        to: leveragerAddress[network],
-      }).then((res) => {
-        return waitForTransaction({
-          hash: res.hash,
-        });
-      });
-    },
-  });
+  const { mutate: tx, isLoading: isTxLoading } = useTx();
 
   const network = mapChainName(chain?.name);
 
@@ -116,14 +64,19 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
     chainAddress: MINTABLE_ERC20_TOKENS[network as Network][tokenName],
   });
 
+  const { data: aAllowance } = useAllowance({
+    address,
+    chainAddress: AAVE_V3_A_TOKENS[network as Network][
+      tokenName
+    ] as `0x${string}`,
+  });
+
   const { data: debtAllowanceData } = useAllowance({
     address,
     chainAddress: AAVE_V3_DEBT_TOKENS[network as Network][
       tokenName
     ] as `0x${string}`,
   });
-
-  const needApprove = allowanceData === 0n || debtAllowanceData === 0n;
 
   const [inputAmount, setInputAmount] = useState("");
   const setIndex = (value: number) => {
@@ -211,58 +164,50 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               aria-label="Close"
               onClick={async () => {
                 try {
-                  const leverager = leveragerAddress[network] as `0x${string}`;
-                  let count = 0;
+                  const hashes: `0x${string}`[] = [];
 
                   console.log({ allowanceData, debtAllowanceData });
                   if (allowanceData === 0n) {
-                    const result = await writeContract({
-                      abi: erc20ABI,
-                      functionName: "approve",
-                      args: [leverager, maxUint256],
+                    const result = await leverageApprove({
+                      network,
+                      token: tokenName,
                       address: MINTABLE_ERC20_TOKENS[network][tokenName],
                     });
-
-                    count++;
-                    console.log({ result });
+                    hashes.push(result.hash);
                   }
                   if (debtAllowanceData === 0n) {
-                    const result = await writeContract({
-                      abi: parseAbi([
-                        "function approveDelegation(address delegatee, uint256 amount)",
-                      ]),
-                      functionName: "approveDelegation",
-                      args: [leverager, maxUint256],
-                      address: AAVE_V3_DEBT_TOKENS[network][
-                        tokenName
-                      ] as `0x${string}`,
+                    const result = await leverageApproveDelegation({
+                      network,
+                      token: tokenName,
                     });
 
-                    count++;
-                    console.log({ result });
+                    hashes.push(result.hash);
                   }
-                  if (count > 1) {
+                  if (hashes.length > 0) {
+                    await Promise.all(
+                      hashes.map((hash) => waitForTransaction({ hash }))
+                    );
                     refetch();
                     return;
                   }
 
-                  supply({
+                  tx({
                     txData: supplyProps.data,
-                    network,
+                    to: leveragerAddress[network] as `0x${string}`,
                   });
                 } catch (e) {
                   console.error(e);
                 }
               }}
             >
-              {supplyIsLoading ? (
+              {isTxLoading ? (
                 <ReactLoading
                   type="spin"
                   height={40}
                   width={40}
                   color="black"
                 ></ReactLoading>
-              ) : needApprove ? (
+              ) : allowanceData === 0n || debtAllowanceData === 0n ? (
                 "Approve"
               ) : (
                 "Supply"
@@ -272,12 +217,15 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
         );
       })
       .with("Borrow", () => {
-        if (!data) return <div></div>;
+        if (!data || !network) return <div></div>;
+
+        const needApprove = debtAllowanceData === 0n;
 
         const borrowProps = getBorrowProps({
           data,
           borrowAmountInput: parseInt(inputAmount || "0"),
           tokenName,
+          network,
         });
 
         return (
@@ -348,15 +296,65 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               ></Spinner>
             </BalanceInput>
             <Borrow {...borrowProps}></Borrow>
+            <button
+              className={center({
+                marginTop: "20px",
+                borderRadius: "10px",
+                backgroundColor: "#B8FF04",
+                height: "62px",
+                width: "100%",
+                fontSize: "28px",
+                fontWeight: "bold",
+                color: "black",
+              })}
+              aria-label="Close"
+              onClick={async () => {
+                try {
+                  if (debtAllowanceData === 0n) {
+                    const result = await leverageApproveDelegation({
+                      network,
+                      token: tokenName,
+                    });
+
+                    await waitForTransaction({
+                      hash: result.hash,
+                    });
+                    refetch();
+                    return;
+                  }
+
+                  tx({
+                    txData: borrowProps.data,
+                    to: leveragerAddress[network] as `0x${string}`,
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            >
+              {isTxLoading ? (
+                <ReactLoading
+                  type="spin"
+                  height={40}
+                  width={40}
+                  color="black"
+                ></ReactLoading>
+              ) : debtAllowanceData === 0n ? (
+                "Approve"
+              ) : (
+                "Supply"
+              )}
+            </button>
           </>
         );
       })
       .with("Withdraw", () => {
-        if (!data) return;
+        if (!data || !network) return;
 
         const withdrawProps = getWithdrawProps({
           data,
           tokenName,
+          network,
         });
 
         return (
@@ -384,18 +382,73 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
               }}
             ></BalanceInput>
             <Withdraw {...withdrawProps}></Withdraw>
+
+            <button
+              className={center({
+                marginTop: "20px",
+                borderRadius: "10px",
+                backgroundColor: "#B8FF04",
+                height: "62px",
+                width: "100%",
+                fontSize: "28px",
+                fontWeight: "bold",
+                color: "black",
+              })}
+              aria-label="Close"
+              onClick={async () => {
+                try {
+                  if (aAllowance === 0n) {
+                    const result = await leverageApprove({
+                      network,
+                      token: tokenName,
+                      address: AAVE_V3_A_TOKENS[network][
+                        tokenName
+                      ] as `0x${string}`,
+                    });
+                    await waitForTransaction({
+                      hash: result.hash,
+                    });
+                    refetch();
+                    return;
+                  }
+
+                  tx({
+                    txData: withdrawProps.data,
+                    to: leveragerAddress[network] as `0x${string}`,
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            >
+              {isTxLoading ? (
+                <ReactLoading
+                  type="spin"
+                  height={40}
+                  width={40}
+                  color="black"
+                ></ReactLoading>
+              ) : aAllowance === 0n ? (
+                "Approve"
+              ) : (
+                "Supply"
+              )}
+            </button>
           </>
         );
       })
       .with("Close", () => {
-        if (!data) return;
+        if (!data || !network) return;
+
+        const targetLTV = 1 - ratio;
 
         const closeProps = getCloseProps({
           data,
           token: tokenName,
+          network,
+          targetLTV,
+          inputAmount: parseFloat(inputAmount || "0"),
         });
-
-        const deleverage = 1 - ratio;
 
         return (
           <>
@@ -404,15 +457,15 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
                 color="#0ED883"
                 ratio={ratio}
                 onChange={setRatio}
-                title="Flashlone Deleverage"
+                title="Flashlone Deleverage Target LTV"
                 description={{
                   start: <span className={spinnerWhiteSemiBold}>1X</span>,
                   middle: (
                     <span>
                       <span className={spinnerWhiteSemiBold}>
-                        ${Math.floor(deleverage * 100) / 100}X
+                        ${Math.floor(targetLTV * 100) / 100}X
                       </span>
-                      <span className={spinnerSmallText}> | current</span>
+                      <span className={spinnerSmallText}> | Target LTV</span>
                     </span>
                   ),
                   end: <span className={spinnerWhiteSemiBold}>0X</span>,
@@ -421,6 +474,72 @@ function TXDialog({ tokenName }: { tokenName: TokenKey }) {
             </BalanceInput>
 
             <Close {...closeProps}></Close>
+            <button
+              className={center({
+                marginTop: "20px",
+                borderRadius: "10px",
+                backgroundColor: "#B8FF04",
+                height: "62px",
+                width: "100%",
+                fontSize: "28px",
+                fontWeight: "bold",
+                color: "black",
+              })}
+              aria-label="Close"
+              onClick={async () => {
+                try {
+                  const hashes: `0x${string}`[] = [];
+                  if (allowanceData === 0n) {
+                    const result = await leverageApprove({
+                      network,
+                      token: tokenName,
+                      address: AAVE_V3_A_TOKENS[network][
+                        tokenName
+                      ] as `0x${string}`,
+                    });
+                    hashes.push(result.hash);
+                  }
+                  if (aAllowance === 0n) {
+                    const result = await leverageApprove({
+                      network,
+                      token: tokenName,
+                      address: AAVE_V3_A_TOKENS[network][
+                        tokenName
+                      ] as `0x${string}`,
+                    });
+                    hashes.push(result.hash);
+                  }
+
+                  if (hashes.length > 0) {
+                    await Promise.all(
+                      hashes.map((hash) => waitForTransaction({ hash }))
+                    );
+                    refetch();
+                    return;
+                  }
+
+                  tx({
+                    txData: closeProps.data,
+                    to: leveragerAddress[network] as `0x${string}`,
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            >
+              {isTxLoading ? (
+                <ReactLoading
+                  type="spin"
+                  height={40}
+                  width={40}
+                  color="black"
+                ></ReactLoading>
+              ) : aAllowance === 0n || allowanceData === 0n ? (
+                "Approve"
+              ) : (
+                "Supply"
+              )}
+            </button>
           </>
         );
       })
