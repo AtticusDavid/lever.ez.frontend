@@ -174,11 +174,11 @@ function Close(props: CloseProps) {
         {[
           {
             label: "Current LTV",
-            value: Math.floor(props.currentLTV * 100) / 100 + "%",
+            value: Math.floor(props.currentLTV * 100) + "%",
           },
           {
             label: "Target LTV",
-            value: Math.floor(props.targetLTV * 100) / 100 + "%",
+            value: Math.floor(props.targetLTV * 100) + "%",
           },
         ].map((item) => {
           return (
