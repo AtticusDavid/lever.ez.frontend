@@ -6,9 +6,15 @@ import DashBoardOverviewStatus from "@/app/(app)/app/DashBoardOverviewStatus";
 import assets from "./defi-assets/assets";
 import DashBoardAssetStatus from "./DashBoardAssetStatus";
 import { useRouter } from "next/navigation";
+import useLendingStatus from "@/hooks/useLendingStatus";
 
 export default function DashBoard() {
   const router = useRouter();
+
+  const { data } = useLendingStatus();
+  const supplied = data ? data.status.user.totalCollateralUSD : 0;
+  const borrowed = data ? data.status.user.totalDebtUSD : 0;
+  const netWorth = supplied - borrowed;
 
   const dashboardAssetRenderer = (asset: (typeof assets)[number]) => {
     return (
@@ -45,19 +51,19 @@ export default function DashBoard() {
           <DashBoardOverviewStatus
             description="Net Worth"
             color="#ffffff"
-            balance={0}
+            balance={netWorth}
             iconSrc="/icon/net-worth.png"
           ></DashBoardOverviewStatus>
           <DashBoardOverviewStatus
             description="Supplied"
             color="#B8FF04"
-            balance={0}
+            balance={supplied}
             iconSrc="/icon/supplied.png"
           ></DashBoardOverviewStatus>
           <DashBoardOverviewStatus
             description="Borrowed"
             color="#C08FFF"
-            balance={0}
+            balance={borrowed}
             iconSrc="/icon/borrowed.png"
           ></DashBoardOverviewStatus>
         </div>
