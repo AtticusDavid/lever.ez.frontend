@@ -10,7 +10,12 @@ import {
   WagmiConfig,
 } from "wagmi";
 import { Toaster } from "react-hot-toast";
-import { sepolia, polygonMumbai, avalancheFuji } from "wagmi/chains";
+import {
+  sepolia,
+  polygonMumbai,
+  avalancheFuji,
+  scrollSepolia,
+} from "wagmi/chains";
 import { enableMapSet } from "immer";
 // import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
@@ -21,7 +26,7 @@ import { publicProvider } from "wagmi/providers/public";
 enableMapSet();
 
 const { chains, publicClient } = configureChains(
-  [sepolia, polygonMumbai, avalancheFuji],
+  [sepolia, polygonMumbai, avalancheFuji, scrollSepolia],
   [publicProvider()]
 );
 

@@ -65,12 +65,14 @@ export const leveragerAddress: AddressMap = {
   [`ethereumSepolia`]: `0x73D263261F8b6c6387E3C20de6ACBD2C7F690C88`,
   [`polygonMumbai`]: `0x8C1f1715Ff79a87ca73195660267AEbD5905Cce1`,
   [`avalancheFuji`]: `0xe08e66990eF50517837166a68906BB19f711dEda`,
+  [`scrollSepolia`]: `0xdAED95f064001711d8B4B74739062470200F86db`,
 };
 
 export const propagatorAddress: AddressMap = {
   [`ethereumSepolia`]: `0x44151E2b2C3F903431c5bd09Da913240bd83bdD1`,
   [`polygonMumbai`]: `0xb187C87B12A173dd83642CFD0d8CAACF13694d0F`,
   [`avalancheFuji`]: `0x55EaB290a809C0D3c32281D172319436Bd733F15`,
+  [`scrollSepolia`]: `0x55EaB290a809C0D3c32281D172319436Bd733F15`,
 };
 
 export const supportedNetworks = [
@@ -87,12 +89,14 @@ export const LINK_ADDRESSES: AddressMap = {
   [`optimismGoerli`]: `0xdc2CC710e42857672E7907CF474a69B63B93089f`,
   [`arbitrumTestnet`]: `0xd14838A68E8AFBAdE5efb411d5871ea0011AFd28`,
   [`avalancheFuji`]: `0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846`,
+  [`scrollSepolia`]: `0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846`,
 };
 
 export const WETH_ADDRESSES: AddressMap = {
   [`ethereumSepolia`]: `0xC558DBdd856501FCd9aaF1E62eae57A9F0629a3c`,
   [`polygonMumbai`]: `0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889`,
   [`avalancheFuji`]: `0xd00ae08403B9bbb9124bB305C09058E32C39A48c`,
+  [`scrollSepolia`]: `0x5300000000000000000000000000000000000004`,
 };
 
 export const LENDING_POOLS: LendingMap = {
@@ -125,6 +129,16 @@ export const LENDING_POOLS: LendingMap = {
     AaveV3UiPoolDataProvider: "0x279c790Afcd547e2f20d896c5DDEe3846b9790B5",
     AaveV3UiIncentiveDataProvider: "0x1EFf285a4E34217495b5531151bffa222A94A4F9",
   },
+  [`scrollSepolia`]: {
+    CompoundV2Comptroller: "0x0fEC306943Ec9766C1Da78C1E1b18c7fF23FE09e",
+    AaveV2LendingPool: "0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9",
+    AaveV2IncentivesController: "0x01D83Fe6A10D2f2B7AF17034343746188272cAc9",
+    AaveV3LendingPool: "0x48914C788295b5db23aF2b5F0B3BE775C4eA9440",
+    AaveV3IncentivesController: "0xa76F05D0cdf599E0186dec880F2FA480fd0c5280",
+    AaveV3AddressProvider: "0x52A27dC690F8652288194Dd2bc523863eBdEa236",
+    AaveV3UiPoolDataProvider: "0xDC55BcFC0963608401A4bA6298624E5895f8250a",
+    AaveV3UiIncentiveDataProvider: "0xBf67A725F976d4A7C1fa9ea5303FD57D13CA0A37",
+  },
 };
 
 export const MINTABLE_ERC20_TOKENS: TokenUnderlyingAddressMap = {
@@ -151,6 +165,14 @@ export const MINTABLE_ERC20_TOKENS: TokenUnderlyingAddressMap = {
     WETH: "0xf97b6C636167B529B6f1D729Bd9bC0e2Bd491848",
     WBTC: "0x0EFD8Ad2231c0B9C4d63F892E0a0a59a626Ce88d",
     AAVE: "0xfB4CeA030Fa61FC435E922CFDc4bF9C80456E19b",
+  },
+  [`scrollSepolia`]: {
+    DAI: "0x7984E363c38b590bB4CA35aEd5133Ef2c6619C40",
+    USDC: "0x2C9678042D52B97D27f2bD2947F7111d93F3dD0D",
+    USDT: "0x186C0C26c45A8DA1Da34339ee513624a9609156d",
+    WETH: "0xb123dCe044EdF0a755505d9623Fba16C0F41cae9",
+    WBTC: "0x5EA79f3190ff37418d42F9B2618688494dBD9693",
+    AAVE: "0xfc2921bE7B2762F0E87039905d6019B0fF5978a8",
   },
 };
 
@@ -179,6 +201,14 @@ export const AAVE_V3_A_TOKENS: TokenUnderlyingAddressMap = {
     WBTC: "0x3d1F7da320eFDE834Cb7974d68591ca65de92FDC",
     AAVE: "0x8419b35fA4AE8105d3241687a6421abA7303E642",
   },
+  [`scrollSepolia`]: {
+    DAI: "0x99Cb50E6bE36C8096e6731ED7738d93090B710DD",
+    USDC: "0x6E4A1BcBd3C3038e6957207cadC1A17092DC7ba3",
+    USDT: "0x54Cb3ba40705d7CCB18c1C24edD8B602a88eF4CE",
+    WETH: "0x9E8CEC4F2F4596141B62e88966D7167E9db555aD",
+    WBTC: "0x43AE2a14AD923915aa85d683D1b7d0d320ae87B2",
+    AAVE: "0xC5209E1325A0DBeb28143D82e7E1DE709456Fc8a",
+  },
 };
 
 export const AAVE_V3_DEBT_TOKENS: TokenUnderlyingAddressMap = {
@@ -205,6 +235,14 @@ export const AAVE_V3_DEBT_TOKENS: TokenUnderlyingAddressMap = {
     WETH: "0xEBaC3ae7bFC81C4e05Ad65a69aD69673B1b53a0f",
     WBTC: "0xbbBe736E39FC0a74C110869f837089fA5e57Ec04",
     AAVE: "0x202AB06b46b0b37804753CF8B2bC0C750b6d6A35",
+  },
+  [`scrollSepolia`]: {
+    DAI: "0x09F9A7cd11BE8468064b06FF20Dce43E0A434a2A",
+    USDC: "0x6ED2eB0A4141975A8A33558234137265f36055f7",
+    USDT: "0x4cB0Dd10789208630F4def0DAAB4161f4Bb7b09D",
+    WETH: "0xD502CD7A595ec36992b0601fae0A4b50A88084D4",
+    WBTC: "0x52a011bF32a85D952aa259D85b705b7cF040836f",
+    AAVE: "0x7AE95AD823943283c3D5b7E9bE5E24414ba980cD",
   },
 };
 
@@ -294,6 +332,14 @@ export const routerConfig: RouterMap = {
     feeTokens: [
       LINK_ADDRESSES[`polygonMumbai`],
       `0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889`,
+    ],
+  },
+  scrollSepolia: {
+    address: `0x70499c328e1e2a3c41108bd3730f6670a44595d1`,
+    chainSelector: `12532609583862916517`,
+    feeTokens: [
+      LINK_ADDRESSES[`scrollSepolia`],
+      `0x5300000000000000000000000000000000000004`,
     ],
   },
 };
