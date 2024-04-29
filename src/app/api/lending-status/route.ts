@@ -588,7 +588,11 @@ function getFloatValueDivDecimals(value: string, decimals: string) {
 async function walletStatus(
   signer: Wallet,
   address: string,
-  blockchain: "ethereumSepolia" | "avalancheFuji" | "polygonMumbai"
+  blockchain:
+    | "ethereumSepolia"
+    | "avalancheFuji"
+    | "polygonMumbai"
+    | "scrollSepolia"
 ) {
   const multicall: Multicall3 = Multicall3__factory.connect(
     multicall3Address,

@@ -23,7 +23,12 @@ export const lendingStatusRequestSchema = object({
   address: string().required(),
   network: string()
     .required()
-    .oneOf(["ethereumSepolia", "polygonMumbai", "avalancheFuji"] as const),
+    .oneOf([
+      "ethereumSepolia",
+      "polygonMumbai",
+      "avalancheFuji",
+      "scrollSepolia",
+    ] as const),
 });
 
 export function leverageApprove({

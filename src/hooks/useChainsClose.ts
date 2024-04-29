@@ -11,6 +11,7 @@ export const networks: Network[] = [
   "ethereumSepolia",
   "avalancheFuji",
   "polygonMumbai",
+  "scrollSepolia",
 ];
 
 function useChainsClose({ token }: { token: TokenKey }) {
