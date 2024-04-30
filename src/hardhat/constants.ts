@@ -81,6 +81,7 @@ export const supportedNetworks = [
   `arbitrumTestnet`,
   `avalancheFuji`,
   `polygonMumbai`,
+  "scrollSepolia",
 ];
 
 export const LINK_ADDRESSES: AddressMap = {
